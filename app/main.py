@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from .errors import error_handler
+import sys
+import os
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -112,11 +114,19 @@ timeout_middleware(app)
 
 
 # OpenTelemetry
-resource = Resource(attributes={SERVICE_NAME: "products-api"})
-provider = TracerProvider(resource=resource)
-processor = BatchSpanProcessor(ConsoleSpanExporter())
-provider.add_span_processor(processor)
-FastAPIInstrumentor.instrument_app(app, tracer_provider=provider)
+try:
+    # Disable OpenTelemetry during pytest runs or when explicitly requested via env var
+    if "pytest" not in sys.modules and os.environ.get("OTEL_DISABLED", "0") != "1":
+        resource = Resource(attributes={SERVICE_NAME: "products-api"})
+        provider = TracerProvider(resource=resource)
+        processor = BatchSpanProcessor(ConsoleSpanExporter())
+        provider.add_span_processor(processor)
+        FastAPIInstrumentor.instrument_app(app, tracer_provider=provider)
+    else:
+        logger.info("OpenTelemetry instrumentation disabled (pytest or OTEL_DISABLED=1)")
+except Exception:
+    # Fail-safe: do not break app startup if OTel setup fails
+    logger.exception("Failed to initialize OpenTelemetry, continuing without instrumentation")
 
 if __name__ == "__main__":
     # When executed directly, reference the app object. When run with
