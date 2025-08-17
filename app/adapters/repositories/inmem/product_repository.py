@@ -100,7 +100,7 @@ class InMemoryProductRepository(ProductRepository):
             else:
                 category_list = list(category)
 
-            category_set = set([c.lower() for c in category_list if c])
+            category_set = {c.lower() for c in category_list if c}
             products = [p for p in products if (p.category or '').lower() in category_set]
 
         skip = (page - 1) * size

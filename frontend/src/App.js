@@ -207,9 +207,21 @@ export default function App() {
                           <p className="desc">{product.description}</p>
                           <div className="row">
                             <div className="price">{formatPrice(product.price)}</div>
-                            <button onClick={() => toggleProductSelection(product.id)} disabled={appliedCategories.length === 0}>
-                              {selectedProducts.includes(product.id) ? 'Remover' : (appliedCategories.length === 0 ? 'Select a category first' : 'Selecionar')}
-                            </button>
+                            {(() => {
+                              let buttonLabel;
+                              if (selectedProducts.includes(product.id)) {
+                                buttonLabel = 'Remover';
+                              } else if (appliedCategories.length === 0) {
+                                buttonLabel = 'Select a category first';
+                              } else {
+                                buttonLabel = 'Selecionar';
+                              }
+                              return (
+                                <button onClick={() => toggleProductSelection(product.id)} disabled={appliedCategories.length === 0}>
+                                  {buttonLabel}
+                                </button>
+                              );
+                            })()}
                           </div>
                         </div>
                       </article>
