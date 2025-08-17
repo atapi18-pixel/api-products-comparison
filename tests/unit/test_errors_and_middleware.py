@@ -22,7 +22,7 @@ def test_custom_error_handler():
 def test_timeout_middleware_triggers(monkeypatch):
     app = FastAPI()
     # attach middleware with very small timeout
-    timeout_middleware(app, timeout=0.001)
+    timeout_middleware(app, timeout=1)
 
     @app.get('/slow')
     async def slow():

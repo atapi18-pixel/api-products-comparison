@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "atapi18-pixel",
+        "projectKey": "atapi18-pixel_api-products-comparison"
+    }
+}
