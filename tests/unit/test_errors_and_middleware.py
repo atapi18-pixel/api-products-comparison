@@ -22,10 +22,11 @@ def test_custom_error_handler():
 def test_timeout_middleware_triggers(monkeypatch):
     app = FastAPI()
     # attach middleware with very small timeout
-    timeout_middleware(app, timeout=1)
+    timeout_middleware(app, timeout=0.01)
 
     @app.get('/slow')
     async def slow():
+        # sleep longer than the middleware timeout to trigger TimeoutError
         await asyncio.sleep(0.1)
         return {'ok': True}
 
