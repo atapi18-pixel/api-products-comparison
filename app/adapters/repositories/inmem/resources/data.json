@@ -1,0 +1,577 @@
+{
+    "products": [
+      {
+        "id": 1,
+        "name": "MacBook Pro 14\" M3",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400",
+        "description": "Apple MacBook Pro with M3 chip, 14-inch Liquid Retina XDR display, 8GB RAM, 512GB SSD. Professional laptop for creative work and development.",
+        "price": 1999.99,
+        "rating": 4.8,
+        "specifications": {
+          "processor": "Apple M3 8-core CPU",
+          "memory": "8GB Unified Memory",
+          "storage": "512GB SSD",
+          "display": "14.2-inch Liquid Retina XDR",
+          "graphics": "10-core GPU",
+          "battery_life": "Up to 22 hours",
+          "weight": "1.55 kg",
+          "ports": "3x Thunderbolt 4, HDMI, SD card slot"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 2,
+        "name": "Dell XPS 13 Plus",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400",
+        "description": "Dell XPS 13 Plus with Intel Core i7, 13.4-inch OLED display, 16GB RAM, 1TB SSD. Premium ultrabook with cutting-edge design.",
+        "price": 1799.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "Intel Core i7-1360P",
+          "memory": "16GB LPDDR5",
+          "storage": "1TB PCIe NVMe SSD",
+          "display": "13.4-inch OLED 3.5K",
+          "graphics": "Intel Iris Xe",
+          "battery_life": "Up to 12 hours",
+          "weight": "1.26 kg",
+          "ports": "2x Thunderbolt 4"
+        },
+        "availability": "In Stock",
+        "brand": "Dell"
+      },
+      {
+        "id": 3,
+        "name": "ThinkPad X1 Carbon Gen 11",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400",
+        "description": "Lenovo ThinkPad X1 Carbon with Intel Core i7, 14-inch WUXGA display, 32GB RAM, 1TB SSD. Business laptop with legendary durability.",
+        "price": 2299.99,
+        "rating": 4.7,
+        "specifications": {
+          "processor": "Intel Core i7-1365U",
+          "memory": "32GB LPDDR5",
+          "storage": "1TB PCIe NVMe SSD",
+          "display": "14-inch WUXGA IPS",
+          "graphics": "Intel Iris Xe",
+          "battery_life": "Up to 15 hours",
+          "weight": "1.12 kg",
+          "ports": "2x Thunderbolt 4, 2x USB-A"
+        },
+        "availability": "In Stock",
+        "brand": "Lenovo"
+      },
+      {
+        "id": 4,
+        "name": "iPhone 15 Pro Max",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400",
+        "description": "Apple iPhone 15 Pro Max with A17 Pro chip, 6.7-inch Super Retina XDR display, 256GB storage, Pro camera system with 5x telephoto.",
+        "price": 1199.99,
+        "rating": 4.9,
+        "specifications": {
+          "processor": "A17 Pro chip",
+          "memory": "8GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch Super Retina XDR",
+          "camera": "48MP Main + 12MP Ultra Wide + 12MP Telephoto",
+          "battery_life": "Up to 29 hours video playback",
+          "weight": "221g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 5,
+        "name": "Samsung Galaxy S24 Ultra",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+        "description": "Samsung Galaxy S24 Ultra with Snapdragon 8 Gen 3, 6.8-inch Dynamic AMOLED display, 512GB storage, S Pen included, AI-powered features.",
+        "price": 1299.99,
+        "rating": 4.8,
+        "specifications": {
+          "processor": "Snapdragon 8 Gen 3",
+          "memory": "12GB RAM",
+          "storage": "512GB",
+          "display": "6.8-inch Dynamic AMOLED 2X",
+          "camera": "200MP Main + 50MP Periscope + 12MP Ultra Wide + 10MP Telephoto",
+          "battery_life": "5000mAh with 45W fast charging",
+          "weight": "232g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Samsung"
+      },
+      {
+        "id": 6,
+        "name": "Google Pixel 8 Pro",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+        "description": "Google Pixel 8 Pro with Google Tensor G3, 6.7-inch LTPO OLED display, 128GB storage, advanced AI photography features, pure Android experience.",
+        "price": 999.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "Google Tensor G3",
+          "memory": "12GB RAM",
+          "storage": "128GB",
+          "display": "6.7-inch LTPO OLED",
+          "camera": "50MP Main + 48MP Telephoto + 48MP Ultra Wide",
+          "battery_life": "5050mAh with 30W fast charging",
+          "weight": "210g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Google"
+      },
+      {
+        "id": 7,
+        "name": "Sony WH-1000XM5",
+        "category": "Headphones",
+        "image_url": "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
+        "description": "Sony WH-1000XM5 wireless noise-canceling headphones with industry-leading ANC, 30-hour battery life, multipoint connection, premium sound quality.",
+        "price": 399.99,
+        "rating": 4.8,
+        "specifications": {
+          "driver_size": "30mm",
+          "frequency_response": "4Hz-40kHz",
+          "battery_life": "30 hours with ANC",
+          "charging": "Quick charge: 3min = 3 hours",
+          "connectivity": "Bluetooth 5.2, NFC, wired 3.5mm",
+          "noise_cancellation": "Dual Noise Sensor Technology",
+          "weight": "250g",
+          "special_features": "Speak-to-Chat, Wearing Detection"
+        },
+        "availability": "In Stock",
+        "brand": "Sony"
+      },
+      {
+        "id": 8,
+        "name": "Bose QuietComfort Ultra",
+        "category": "Headphones",
+        "image_url": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
+        "description": "Bose QuietComfort Ultra headphones with world-class noise cancellation, Immersive Audio, 24-hour battery, premium comfort for extended listening.",
+        "price": 429.99,
+        "rating": 4.7,
+        "specifications": {
+          "driver_size": "Custom drivers",
+          "frequency_response": "Not specified",
+          "battery_life": "24 hours",
+          "charging": "Quick charge: 15min = 2.5 hours",
+          "connectivity": "Bluetooth 5.3, wired 2.5mm to 3.5mm",
+          "noise_cancellation": "World-class ANC",
+          "weight": "250g",
+          "special_features": "Immersive Audio, CustomTune"
+        },
+        "availability": "In Stock",
+        "brand": "Bose"
+      },
+      {
+        "id": 9,
+        "name": "Apple AirPods Max",
+        "category": "Headphones",
+        "image_url": "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400",
+        "description": "Apple AirPods Max over-ear headphones with Active Noise Cancellation, Spatial Audio, H1 chip, premium aluminum and fabric design.",
+        "price": 549.99,
+        "rating": 4.5,
+        "specifications": {
+          "driver_size": "40mm Apple-designed",
+          "frequency_response": "Not specified",
+          "battery_life": "20 hours with ANC",
+          "charging": "Lightning connector",
+          "connectivity": "Bluetooth 5.0",
+          "noise_cancellation": "Active Noise Cancellation",
+          "weight": "384.8g",
+          "special_features": "Spatial Audio, Adaptive EQ"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 10,
+        "name": "LG OLED C4 55\"",
+        "category": "TVs",
+        "image_url": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400",
+        "description": "LG OLED C4 55-inch 4K Smart TV with α9 Gen7 AI Processor, Dolby Vision IQ, HDMI 2.1, perfect for gaming and movies with stunning picture quality.",
+        "price": 1499.99,
+        "rating": 4.9,
+        "specifications": {
+          "screen_size": "55 inches",
+          "resolution": "4K Ultra HD (3840x2160)",
+          "display_type": "OLED evo",
+          "processor": "α9 Gen7 AI Processor 4K",
+          "hdr_support": "Dolby Vision IQ, HDR10, HLG",
+          "smart_platform": "webOS 24",
+          "gaming_features": "VRR, ALLM, 4x HDMI 2.1",
+          "audio": "40W, Dolby Atmos"
+        },
+        "availability": "In Stock",
+        "brand": "LG"
+      },
+      {
+        "id": 11,
+        "name": "Samsung QN90C Neo QLED 65\"",
+        "category": "TVs",
+        "image_url": "https://images.unsplash.com/photo-1567690187548-f07b1d7bf5a9?w=400",
+        "description": "Samsung QN90C Neo QLED 65-inch 4K Smart TV with Quantum Matrix Technology, Neural Quantum Processor, anti-glare screen, premium gaming features.",
+        "price": 1899.99,
+        "rating": 4.7,
+        "specifications": {
+          "screen_size": "65 inches",
+          "resolution": "4K Ultra HD (3840x2160)",
+          "display_type": "Neo QLED",
+          "processor": "Neural Quantum Processor 4K",
+          "hdr_support": "Quantum HDR 32X",
+          "smart_platform": "Tizen OS",
+          "gaming_features": "Motion Xcelerator Turbo+",
+          "audio": "60W, Object Tracking Sound+"
+        },
+        "availability": "In Stock",
+        "brand": "Samsung"
+      },
+      {
+        "id": 12,
+        "name": "Sony A95L OLED 77\"",
+        "category": "TVs",
+        "image_url": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400",
+        "description": "Sony A95L OLED 77-inch 4K Smart TV with QD-OLED technology, Cognitive Processor XR, Perfect for PlayStation 5, cinema-quality picture.",
+        "price": 3299.99,
+        "rating": 4.8,
+        "specifications": {
+          "screen_size": "77 inches",
+          "resolution": "4K Ultra HD (3840x2160)",
+          "display_type": "QD-OLED",
+          "processor": "Cognitive Processor XR",
+          "hdr_support": "Dolby Vision, HDR10, HLG",
+          "smart_platform": "Google TV",
+          "gaming_features": "Perfect for PS5, VRR, ALLM",
+          "audio": "60W, Acoustic Surface Audio+"
+        },
+        "availability": "In Stock",
+        "brand": "Sony"
+      },
+      {
+        "id": 13,
+        "name": "Alienware m18",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400",
+        "description": "Alienware m18 gaming laptop with Intel Core i9, 18-inch QHD+ display, 64GB RAM, 2TB SSD, RTX 4090. Ultimate gaming machine.",
+        "price": 4999.99,
+        "rating": 4.7,
+        "specifications": {
+          "processor": "Intel Core i9-13980HX",
+          "memory": "64GB DDR5",
+          "storage": "2TB PCIe NVMe SSD",
+          "display": "18-inch QHD+ 165Hz",
+          "graphics": "NVIDIA RTX 4090",
+          "battery_life": "Up to 6 hours",
+          "weight": "4.23 kg",
+          "ports": "USB-C, 3x USB-A, HDMI, Ethernet"
+        },
+        "availability": "In Stock",
+        "brand": "Dell"
+      },
+      {
+        "id": 14,
+        "name": "Razer Blade 15",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400",
+        "description": "Razer Blade 15 with Intel Core i7, 15.6-inch QHD 240Hz display, 32GB RAM, 1TB SSD, RTX 4070. Sleek gaming performance.",
+        "price": 2699.99,
+        "rating": 4.5,
+        "specifications": {
+          "processor": "Intel Core i7-13800H",
+          "memory": "32GB DDR5",
+          "storage": "1TB PCIe NVMe SSD",
+          "display": "15.6-inch QHD 240Hz",
+          "graphics": "NVIDIA RTX 4070",
+          "battery_life": "Up to 8 hours",
+          "weight": "2.01 kg",
+          "ports": "USB-C, 3x USB-A, HDMI"
+        },
+        "availability": "In Stock",
+        "brand": "Razer"
+      },
+      {
+        "id": 15,
+        "name": "MSI Creator Z17",
+        "category": "Laptops",
+        "image_url": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400",
+        "description": "MSI Creator Z17 with Intel Core i9, 17-inch 4K Mini LED display, 64GB RAM, 2TB SSD, RTX 4080. Professional content creation.",
+        "price": 3999.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "Intel Core i9-13950HX",
+          "memory": "64GB DDR5",
+          "storage": "2TB PCIe NVMe SSD",
+          "display": "17-inch 4K Mini LED",
+          "graphics": "NVIDIA RTX 4080",
+          "battery_life": "Up to 7 hours",
+          "weight": "2.49 kg",
+          "ports": "2x Thunderbolt 4, 2x USB-A, HDMI"
+        },
+        "availability": "In Stock",
+        "brand": "MSI"
+      },
+      {
+        "id": 16,
+        "name": "iPhone 15 Pro Max",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400",
+        "description": "Apple iPhone 15 Pro Max with A17 Pro chip, 6.7-inch Super Retina XDR display, 256GB storage, Pro camera system with 5x telephoto.",
+        "price": 1199.99,
+        "rating": 4.9,
+        "specifications": {
+          "processor": "A17 Pro chip",
+          "memory": "8GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch Super Retina XDR",
+          "camera": "48MP Main + 12MP Ultra Wide + 12MP Telephoto",
+          "battery_life": "Up to 29 hours video playback",
+          "weight": "221g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 17,
+        "name": "iPhone 15 Pro",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+        "description": "Apple iPhone 15 Pro with A17 Pro chip, 6.1-inch Super Retina XDR display, 128GB storage, Pro camera system with 3x telephoto.",
+        "price": 999.99,
+        "rating": 4.8,
+        "specifications": {
+          "processor": "A17 Pro chip",
+          "memory": "8GB RAM",
+          "storage": "128GB",
+          "display": "6.1-inch Super Retina XDR",
+          "camera": "48MP Main + 12MP Ultra Wide + 12MP Telephoto",
+          "battery_life": "Up to 23 hours video playback",
+          "weight": "187g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 18,
+        "name": "iPhone 15",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+        "description": "Apple iPhone 15 with A16 Bionic chip, 6.1-inch Super Retina XDR display, 128GB storage, advanced dual camera system.",
+        "price": 799.99,
+        "rating": 4.7,
+        "specifications": {
+          "processor": "A16 Bionic chip",
+          "memory": "6GB RAM",
+          "storage": "128GB",
+          "display": "6.1-inch Super Retina XDR",
+          "camera": "48MP Main + 12MP Ultra Wide",
+          "battery_life": "Up to 20 hours video playback",
+          "weight": "171g",
+          "connectivity": "5G, Wi-Fi 6, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 19,
+        "name": "iPhone 15 Plus",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1567581935884-3349723552ca?w=400",
+        "description": "Apple iPhone 15 Plus with A16 Bionic chip, 6.7-inch Super Retina XDR display, 256GB storage, extended battery life.",
+        "price": 899.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "A16 Bionic chip",
+          "memory": "6GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch Super Retina XDR",
+          "camera": "48MP Main + 12MP Ultra Wide",
+          "battery_life": "Up to 26 hours video playback",
+          "weight": "201g",
+          "connectivity": "5G, Wi-Fi 6, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Apple"
+      },
+      {
+        "id": 20,
+        "name": "Samsung Galaxy S24 Ultra",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+        "description": "Samsung Galaxy S24 Ultra with Snapdragon 8 Gen 3, 6.8-inch Dynamic AMOLED display, 512GB storage, S Pen included, AI-powered features.",
+        "price": 1299.99,
+        "rating": 4.8,
+        "specifications": {
+          "processor": "Snapdragon 8 Gen 3",
+          "memory": "12GB RAM",
+          "storage": "512GB",
+          "display": "6.8-inch Dynamic AMOLED 2X",
+          "camera": "200MP Main + 50MP Periscope + 12MP Ultra Wide + 10MP Telephoto",
+          "battery_life": "5000mAh with 45W fast charging",
+          "weight": "232g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Samsung"
+      },
+      {
+        "id": 21,
+        "name": "Samsung Galaxy S24+",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400",
+        "description": "Samsung Galaxy S24+ with Snapdragon 8 Gen 3, 6.7-inch Dynamic AMOLED display, 256GB storage, enhanced AI photography.",
+        "price": 999.99,
+        "rating": 4.7,
+        "specifications": {
+          "processor": "Snapdragon 8 Gen 3",
+          "memory": "12GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch Dynamic AMOLED 2X",
+          "camera": "50MP Main + 12MP Ultra Wide + 10MP Telephoto",
+          "battery_life": "4900mAh with 45W fast charging",
+          "weight": "196g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Samsung"
+      },
+      {
+        "id": 22,
+        "name": "Samsung Galaxy S24",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1565849904461-04a58b4d2a39?w=400",
+        "description": "Samsung Galaxy S24 with Exynos 2400, 6.2-inch Dynamic AMOLED display, 128GB storage, compact flagship performance.",
+        "price": 799.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "Exynos 2400",
+          "memory": "8GB RAM",
+          "storage": "128GB",
+          "display": "6.2-inch Dynamic AMOLED 2X",
+          "camera": "50MP Main + 12MP Ultra Wide + 10MP Telephoto",
+          "battery_life": "4000mAh with 25W fast charging",
+          "weight": "167g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Samsung"
+      },
+      {
+        "id": 23,
+        "name": "Google Pixel 8 Pro",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+        "description": "Google Pixel 8 Pro with Google Tensor G3, 6.7-inch LTPO OLED display, 256GB storage, advanced AI photography features, pure Android experience.",
+        "price": 1099.99,
+        "rating": 4.6,
+        "specifications": {
+          "processor": "Google Tensor G3",
+          "memory": "12GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch LTPO OLED",
+          "camera": "50MP Main + 48MP Telephoto + 48MP Ultra Wide",
+          "battery_life": "5050mAh with 30W fast charging",
+          "weight": "210g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Google"
+      },
+      {
+        "id": 24,
+        "name": "Google Pixel 8",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+        "description": "Google Pixel 8 with Google Tensor G3, 6.2-inch OLED display, 128GB storage, AI-enhanced photography, 7 years of updates.",
+        "price": 699.99,
+        "rating": 4.5,
+        "specifications": {
+          "processor": "Google Tensor G3",
+          "memory": "8GB RAM",
+          "storage": "128GB",
+          "display": "6.2-inch OLED",
+          "camera": "50MP Main + 12MP Ultra Wide",
+          "battery_life": "4575mAh with 27W fast charging",
+          "weight": "187g",
+          "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Google"
+      },
+      {
+        "id": 25,
+        "name": "OnePlus 12",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1565849904461-04a58b4d2a39?w=400",
+        "description": "OnePlus 12 with Snapdragon 8 Gen 3, 6.82-inch LTPO AMOLED display, 256GB storage, 100W SuperVOOC charging, flagship killer.",
+        "price": 899.99,
+        "rating": 4.4,
+        "specifications": {
+          "processor": "Snapdragon 8 Gen 3",
+          "memory": "16GB RAM",
+          "storage": "256GB",
+          "display": "6.82-inch LTPO AMOLED",
+          "camera": "50MP Main + 64MP Periscope + 48MP Ultra Wide",
+          "battery_life": "5400mAh with 100W SuperVOOC",
+          "weight": "220g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4"
+        },
+        "availability": "In Stock",
+        "brand": "OnePlus"
+      },
+      {
+        "id": 26,
+        "name": "Xiaomi 14 Ultra",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+        "description": "Xiaomi 14 Ultra with Snapdragon 8 Gen 3, 6.73-inch LTPO AMOLED display, 512GB storage, Leica quad camera system, photography flagship.",
+        "price": 1199.99,
+        "rating": 4.7,
+        "specifications": {
+          "processor": "Snapdragon 8 Gen 3",
+          "memory": "16GB RAM",
+          "storage": "512GB",
+          "display": "6.73-inch LTPO AMOLED",
+          "camera": "50MP Main + 50MP Periscope + 50MP Ultra Wide + 50MP Telephoto",
+          "battery_life": "5300mAh with 90W fast charging",
+          "weight": "229g",
+          "connectivity": "5G, Wi-Fi 7, Bluetooth 5.4"
+        },
+        "availability": "In Stock",
+        "brand": "Xiaomi"
+      },
+      {
+        "id": 27,
+        "name": "Nothing Phone (2a)",
+        "category": "Smartphones",
+        "image_url": "https://images.unsplash.com/photo-1567581935884-3349723552ca?w=400",
+        "description": "Nothing Phone (2a) with MediaTek Dimensity 7200 Pro, 6.7-inch AMOLED display, 256GB storage, unique transparent design with Glyph interface.",
+        "price": 399.99,
+        "rating": 4.2,
+        "specifications": {
+          "processor": "MediaTek Dimensity 7200 Pro",
+          "memory": "12GB RAM",
+          "storage": "256GB",
+          "display": "6.7-inch AMOLED",
+          "camera": "50MP Main + 50MP Ultra Wide",
+          "battery_life": "5000mAh with 45W fast charging",
+          "weight": "190g",
+          "connectivity": "5G, Wi-Fi 6, Bluetooth 5.3"
+        },
+        "availability": "In Stock",
+        "brand": "Nothing"
+      }
+    ],
+    "metadata": {
+      "total_products": 27,
+      "categories": ["Laptops", "Smartphones", "Headphones", "TVs"],
+      "last_updated": "2024-08-15T10:00:00Z",
+      "api_version": "1.0.0"
+    }
+  }
