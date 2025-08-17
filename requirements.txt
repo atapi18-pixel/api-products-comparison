@@ -6,3 +6,5 @@ opentelemetry-sdk==1.20.0
 opentelemetry-instrumentation-fastapi==0.41b0
 python-json-logger
 dependency-injector
+pytest
+pytest-cov
