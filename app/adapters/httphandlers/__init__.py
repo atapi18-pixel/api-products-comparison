@@ -27,7 +27,8 @@ class Handlers:
             yield handler
 
     @classmethod
-    def modules(cls) -> map:
-        return map(
-                lambda module: cls.__module_namespace(module[:-3]), cls.__all_module_names()
-        )
+    def modules(cls) -> list:
+        return [
+            cls.__module_namespace(module[:-3])
+            for module in cls.__all_module_names()
+        ]

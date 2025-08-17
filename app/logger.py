@@ -14,12 +14,12 @@ def setup_logger(name: str = "product-api", level=logging.ERROR) -> logging.Logg
 
     # Avoid adding multiple handlers if already set up
     if not logger.handlers:
-        logHandler = logging.StreamHandler()
+        log_handler = logging.StreamHandler()
         formatter = jsonlogger.JsonFormatter(
             '%(asctime)s %(name)s %(levelname)s %(message)s'
         )
-        logHandler.setFormatter(formatter)
-        logger.addHandler(logHandler)
+        log_handler.setFormatter(formatter)
+        logger.addHandler(log_handler)
 
     return logger
 
