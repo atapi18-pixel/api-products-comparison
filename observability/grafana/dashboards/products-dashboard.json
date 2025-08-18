@@ -1,0 +1,434 @@
+{
+  "annotations": {"list": []},
+  "schemaVersion": 36,
+  "title": "🛍️ Products API - Observability Dashboard",
+  "tags": ["products", "api", "observability", "sre"],
+  "description": "Complete observability dashboard for Products API with RED/USE metrics, business insights and distributed tracing",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "🚀 Business Metrics & KPIs",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "datasource": null,
+      "collapsed": false
+    },
+    {
+      "id": 60,
+      "type": "stat",
+      "title": "Total Products Served",
+      "targets": [{"expr": "sum(increase(http_requests_total{endpoint=\"/v1/products\"}[1h]))", "refId": "A", "legendFormat": "Products"}],
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]},
+          "unit": "short",
+          "custom": {"displayMode": "basic"}
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "horizontal"
+      }
+    },
+    {
+      "id": 61,
+      "type": "piechart",
+      "title": "Top API Endpoints",
+      "targets": [{"expr": "topk(5, sum by(endpoint) (increase(http_requests_total{endpoint=~\"/v1/.*\"}[1h])))", "refId": "A", "legendFormat": "{{endpoint}}"}],
+      "gridPos": {"h": 8, "w": 8, "x": 4, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {"tooltip": false, "vis": false, "legend": false}
+          },
+          "mappings": [],
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"],
+          "fields": ""
+        },
+        "pieType": "pie",
+        "tooltip": {"mode": "single"},
+        "legend": {"displayMode": "list", "placement": "right", "values": ["percent"]},
+        "displayLabels": ["name", "percent"]
+      }
+    },
+    {
+      "id": 62,
+      "type": "timeseries",
+      "title": "🔥 Real-time Traffic by Endpoint",
+      "targets": [
+        {"expr": "sum by(endpoint) (rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "{{endpoint}}"}
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "spanNulls": false,
+            "insertNulls": false,
+            "showPoints": "never",
+            "pointSize": 5,
+            "stacking": {"mode": "none", "group": "A"},
+            "axisPlacement": "auto",
+            "axisLabel": "",
+            "scaleDistribution": {"type": "linear"},
+            "hideFrom": {"tooltip": false, "vis": false, "legend": false},
+            "thresholdsStyle": {"mode": "off"}
+          },
+          "color": {"mode": "palette-classic"},
+          "thresholds": {"steps": [{"color": "green", "value": null}]},
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 63,
+      "type": "stat",
+      "title": "Avg Response Time",
+      "targets": [{"expr": "sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m]))", "refId": "A"}],
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 5},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 0.1},
+              {"color": "red", "value": 0.5}
+            ]
+          },
+          "unit": "s"
+        }
+      }
+    },
+    
+    {
+      "id": 2,
+      "type": "row",
+      "title": "🔴 RED Metrics - Requests, Errors, Duration",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+      "collapsed": false
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "🚦 Requests (5m)",
+      "targets": [{"expr": "sum(increase(http_requests_total[5m]))", "refId": "A"}],
+      "gridPos": {"h": 3, "w": 4, "x": 0, "y": 10},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [{"color": "blue", "value": null}]},
+          "unit": "short"
+        }
+      },
+      "options": {"colorMode": "background", "graphMode": "area"}
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "⚠️ Errors (5m)",
+      "targets": [{"expr": "sum(increase(http_request_errors_total[5m]))", "refId": "A"}],
+      "gridPos": {"h": 3, "w": 4, "x": 4, "y": 10},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1},
+              {"color": "red", "value": 5}
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "options": {"colorMode": "background"}
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "📊 Error Rate %",
+      "targets": [{"expr": "(sum(rate(http_request_errors_total[5m])) / sum(rate(http_requests_total[5m]))) * 100", "refId": "A"}],
+      "gridPos": {"h": 3, "w": 4, "x": 8, "y": 10},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1},
+              {"color": "red", "value": 5}
+            ]
+          },
+          "unit": "percent"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "⚡ Response Time Percentiles",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "A", "legendFormat": "P50"},
+        {"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "B", "legendFormat": "P95"},
+        {"expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "C", "legendFormat": "P99"}
+      ],
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 10},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"lineWidth": 2, "fillOpacity": 15},
+          "color": {"mode": "palette-classic"},
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "📈 Request Rate by Status Code",
+      "targets": [
+        {"expr": "sum by(status_code) (rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "{{status_code}}"}
+      ],
+      "gridPos": {"h": 3, "w": 12, "x": 0, "y": 13},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"drawStyle": "line", "lineWidth": 1, "fillOpacity": 20},
+          "unit": "reqps"
+        }
+      }
+    },
+
+    {
+      "id": 20,
+      "type": "row",
+      "title": "🖥️ USE Metrics - Utilization, Saturation, Errors",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 16},
+      "collapsed": false
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "💻 CPU Utilization",
+      "targets": [{"expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)", "refId": "A", "legendFormat": "CPU Usage %"}],
+      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 17},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 30, "lineWidth": 2},
+          "color": {"mode": "continuous-GrYlRd"},
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "🧠 Memory Usage",
+      "targets": [
+        {"expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes", "refId": "A", "legendFormat": "Used Memory"},
+        {"expr": "node_memory_MemTotal_bytes", "refId": "B", "legendFormat": "Total Memory"}
+      ],
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 17},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 20, "lineWidth": 2},
+          "unit": "bytes",
+          "color": {"mode": "palette-classic"}
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "💾 Disk I/O",
+      "targets": [
+        {"expr": "irate(node_disk_read_bytes_total[5m])", "refId": "A", "legendFormat": "Read"},
+        {"expr": "irate(node_disk_written_bytes_total[5m])", "refId": "B", "legendFormat": "Write"}
+      ],
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 17},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 20, "lineWidth": 2},
+          "unit": "Bps",
+          "color": {"mode": "palette-classic"}
+        }
+      }
+    },
+
+    {
+      "id": 30,
+      "type": "row",
+      "title": "🎯 Golden Signals & Alerting",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 21},
+      "collapsed": false
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "🌊 Traffic (req/s)",
+      "targets": [{"expr": "sum(rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "Total RPS"}],
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 22},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 25, "lineWidth": 2},
+          "unit": "reqps",
+          "color": {"mode": "continuous-BlPu"}
+        }
+      }
+    },
+    {
+      "id": 32,
+      "type": "timeseries",
+      "title": "❌ Errors (err/s)",
+      "targets": [{"expr": "sum(rate(http_request_errors_total[1m]))", "refId": "A", "legendFormat": "Error Rate"}],
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 22},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 30, "lineWidth": 2},
+          "unit": "reqps",
+          "color": {"mode": "continuous-RdYlGr", "seriesBy": "last"},
+          "thresholds": {
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "red", "value": 0.1}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "⏱️ Latency P95",
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "A", "legendFormat": "P95 Latency"}],
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 22},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 25, "lineWidth": 2},
+          "unit": "s",
+          "color": {"mode": "continuous-GrYlRd"}
+        }
+      }
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "🔄 In-flight Requests",
+      "targets": [{"expr": "sum(http_requests_inprogress)", "refId": "A", "legendFormat": "Active Requests"}],
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 22},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 30, "lineWidth": 2},
+          "unit": "short",
+          "color": {"mode": "continuous-BlYlRd"}
+        }
+      }
+    },
+
+    {
+      "id": 70,
+      "type": "row",
+      "title": "🔍 Distributed Tracing & Performance",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26},
+      "collapsed": false
+    },
+    {
+      "id": 71,
+      "type": "table",
+      "title": "🔎 Recent Traces - GET /v1/products",
+      "datasource": {"type": "tempo", "uid": "tempo"},
+      "targets": [
+        {
+          "queryType": "traceql",
+          "query": "{name=\"GET /v1/products\"}",
+          "refId": "A",
+          "limit": 15,
+          "datasource": {"type": "tempo", "uid": "tempo"}
+        }
+      ],
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 27},
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {"show": false}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"align": "auto", "displayMode": "auto"},
+          "mappings": [],
+          "thresholds": {"steps": [{"color": "green", "value": null}]}
+        }
+      }
+    },
+    {
+      "id": 72,
+      "type": "timeseries",
+      "title": "🚀 Service Performance Trends",
+      "targets": [
+        {"expr": "avg(rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]))", "refId": "A", "legendFormat": "Avg Response Time"},
+        {"expr": "rate(http_requests_total[5m])", "refId": "B", "legendFormat": "Request Rate"}
+      ],
+      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 33},
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"fillOpacity": 15, "lineWidth": 2},
+          "color": {"mode": "palette-classic"}
+        }
+      }
+    },
+
+    {
+      "id": 40,
+      "type": "row",
+      "title": "📋 Logs & Debugging",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 39},
+      "collapsed": false
+    },
+    {
+      "id": 41,
+      "type": "logs",
+      "title": "📄 Live Application Logs",
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [{"expr": "{job=\"product-api\"}", "refId": "A"}],
+      "options": {
+        "showLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40}
+    }
+  ],
+  "time": {"from": "now-15m", "to": "now"},
+  "refresh": "1s",
+  "timezone": "browser",
+  "liveNow": false,
+  "style": "dark"
+}

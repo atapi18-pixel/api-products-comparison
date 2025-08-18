@@ -1,0 +1,14 @@
+notifiers:
+  - uid: 'webhook-1'
+    name: 'webhook'
+    type: 'webhook'
+    isDefault: false
+    orgId: 1
+    settings:
+      url: 'http://localhost:9000/alert'
+      httpMethod: 'POST'
+      uploadImage: false
+      includeImage: false
+      headers:
+        - name: 'Content-Type'
+          value: 'application/json'

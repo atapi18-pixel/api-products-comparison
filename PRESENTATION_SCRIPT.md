@@ -138,12 +138,6 @@ HTTP Request → Handler → Service → Repository → Data Source
 - 🚀 **CI/CD:** Pipeline de deploy automatizado
 - 📊 **Monitoramento:** Métricas e alertas em produção
 
-**Slide 13: Expansão de Funcionalidades**
-- 📝 **CRUD completo:** Create, Update, Delete
-- 🔍 **Busca avançada:** Elasticsearch integration
-- 📦 **Versionamento:** API versioning strategy
-- 🌍 **Internacionalização:** Multi-language support
-- 📱 **Rate limiting:** Controle de taxa de requisições
 
 **Script:**
 > "Temos um roadmap ambicioso. Tecnicamente, queremos adicionar banco de dados, autenticação e mais testes. Funcionalmente, vamos expandir para CRUD completo, busca avançada e outras features empresariais."

@@ -1,0 +1,54 @@
+groups:
+  - name: products-api.rules
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_request_errors_total[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected for products API"
+          description: "Error rate is > 0.1 errors/s"
+      
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "High latency detected (P95 > 1s)"
+          description: "P95 request latency is greater than 1s"
+      
+      # NOVO: Alerta para Timeout acima de 5 segundos
+      - alert: RequestTimeoutAlert
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 5
+        for: 1m
+        labels:
+          severity: critical
+          alert_type: timeout
+        annotations:
+          summary: "🚨 REQUEST TIMEOUT ALERT - Response time > 5 seconds"
+          description: "P95 request latency is {{ $value }}s (>5s threshold). Service may be experiencing performance issues."
+          runbook_url: "https://wiki.company.com/runbooks/timeout-alert"
+      
+      # NOVO: Alerta para requests individuais lentos (baseado em percentil 99)
+      - alert: SlowRequestAlert  
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[2m])) by (le)) > 5
+        for: 30s
+        labels:
+          severity: warning  
+          alert_type: slow_request
+        annotations:
+          summary: "⚠️ SLOW REQUEST DETECTED - P99 latency > 5 seconds"
+          description: "P99 request latency is {{ $value }}s. Individual requests are taking too long."
+      
+      # NOVO: Alerta para request duration máxima
+      - alert: ExtremeLongRequest
+        expr: max(http_request_duration_seconds) > 5
+        for: 0s  # Imediato
+        labels:
+          severity: emergency
+          alert_type: extreme_timeout
+        annotations:
+          summary: "🔴 EXTREME TIMEOUT - Individual request > 5 seconds"
+          description: "A single request took {{ $value }}s to complete (>5s). Immediate investigation required."

@@ -1,8 +1,164 @@
-version: '3.8'
+# Docker Compose configuration for local observability stack
+# Services are defined at top-level (no `version` field to avoid deprecation warnings)
+
 services:
   app:
-    image: apiproductscomparison:latest
     build: .
     ports:
       - "8000:8000"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_SERVICE_NAME: "products-api"
+      OTEL_DISABLED: "0"
+    depends_on:
+      - otel-collector
+    volumes:
+      - ./observability/logs:/logs:rw
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus metrics
+      - "55681:55681"
+    depends_on:
+      - tempo
+      - loki
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    user: "0"
+    ports:
+      - "3200:3200"   # Tempo HTTP
+      - "14268:14268" # Jaeger HTTP
+      - "14250:14250" # Jaeger gRPC
+      - "9411:9411"   # Zipkin
+    volumes:
+      - tempo-data:/var/tempo
+      - ./observability/tempo-config.yaml:/etc/tempo/config.yaml:ro
+      - ./observability/tempo-overrides.yaml:/etc/tempo/overrides.yaml:ro
+    networks:
+      - default
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/prometheus/rules:/etc/prometheus/rules:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - alertmanager
+      - otel-collector
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_NEWS_NEWS_FEED_ENABLED=false
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor,traceToMetrics
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - tempo
+      - prometheus
+      - loki
+
+  loki:
+    image: grafana/loki:2.8.2
+    ports:
+      - "3100:3100"
+    user: "0"
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+    volumes:
+      - ./observability/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+      - loki-wal:/wal
+
+  fluent-bit:
+    image: fluent/fluent-bit:2.1
+    depends_on:
+      - loki
+    volumes:
+      - ./observability/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./observability/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ./observability/logs:/logs:ro
+      - /var/log:/var/log:ro
+      - ./observability/fluent-bit/storage:/fluent-bit/storage:rw
+    networks:
+      - default
+
+  perf:
+    image: grafana/k6:0.45.0
+    volumes:
+      - ./tests/perf:/perf:ro
+    depends_on:
+      - app
+      - grafana
+      - prometheus
+    entrypoint: ["/bin/sh"]
+    command: ["/perf/scheduler.sh"]
     restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./observability/alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    ports:
+      - "9093:9093"
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+
+  # Webhook server para WhatsApp alerts
+  whatsapp-webhook:
+    build:
+      context: ./observability/alerting
+      dockerfile_inline: |
+        FROM python:3.11-slim
+        WORKDIR /app
+        RUN pip install flask requests
+        COPY whatsapp_webhook.py .
+        EXPOSE 5000
+        CMD ["python", "whatsapp_webhook.py"]
+    ports:
+      - "5000:5000"
+    environment:
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID:-AC2c8b41cd9adb8b069553678f90933f8f}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-e18489d4158ed069dfc030940af1849d}
+      - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM:-whatsapp:+14155238886}
+      - WHATSAPP_TO_CRITICAL=${WHATSAPP_TO_CRITICAL:-whatsapp:+5521995715701}
+      - WHATSAPP_TO_EMERGENCY=${WHATSAPP_TO_EMERGENCY:-whatsapp:+5521995715701}
+
+volumes:
+  grafana-storage: {}
+  loki-data: {}
+  loki-wal: {}
+  promtail-positions: {}
+  tempo-data: {}

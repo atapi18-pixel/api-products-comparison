@@ -19,7 +19,9 @@
         ],
         "url": {
           "raw": "{{base_url}}/v1/products?page=1&page_size=10",
-          "host": ["{{base_url}}"],
+          "protocol": "http",
+          "host": ["{{host}}"],
+          "port": "{{port}}",
           "path": ["v1", "products"],
           "query": [
             { "key": "page", "value": "1" },
@@ -36,10 +38,20 @@
         "method": "GET",
         "header": [
           { "key": "Accept", "value": "application/json" },
-          { "key": "X-Delay", "value": "2", "type": "text" }
+          { "key": "X-Delay", "value": "5", "type": "text" }
         ],
-        "url": { "raw": "{{base_url}}/v1/products?page=1&page_size=10", "path": ["v1","products"] },
-        "description": "Same endpoint but simulate latency by sending header `X-Delay: 2`."
+        "url": {
+          "raw": "{{base_url}}/v1/products?page=1&page_size=10",
+          "protocol": "http",
+          "host": ["{{host}}"],
+          "port": "{{port}}",
+          "path": ["v1", "products"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "page_size", "value": "10" }
+          ]
+        },
+        "description": "Test endpoint with 5 second delay using X-Delay header to trigger timeout alerts."
       },
       "response": []
     },
@@ -48,7 +60,17 @@
       "request": {
         "method": "GET",
         "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{base_url}}/v1/products?page=1&page_size=1000", "path": ["v1","products"] },
+        "url": {
+          "raw": "{{base_url}}/v1/products?page=1&page_size=1000",
+          "protocol": "http",
+          "host": ["{{host}}"],
+          "port": "{{port}}",
+          "path": ["v1", "products"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "page_size", "value": "1000" }
+          ]
+        },
         "description": "Send an invalid `page_size` (exceeds max) to exercise validation response (expect 422)."
       },
       "response": []
@@ -58,7 +80,13 @@
       "request": {
         "method": "GET",
         "header": [ { "key": "Accept", "value": "application/json" } ],
-        "url": { "raw": "{{base_url}}/openapi.json", "path": ["openapi.json"] },
+        "url": {
+          "raw": "{{base_url}}/openapi.json",
+          "protocol": "http",
+          "host": ["{{host}}"],
+          "port": "{{port}}",
+          "path": ["openapi.json"]
+        },
         "description": "Fetch the OpenAPI JSON produced by the running app. Useful to inspect schema."
       },
       "response": []
@@ -68,7 +96,13 @@
       "request": {
         "method": "GET",
         "header": [ { "key": "Accept", "value": "text/html" } ],
-        "url": { "raw": "{{base_url}}/docs", "path": ["docs"] },
+        "url": {
+          "raw": "{{base_url}}/docs",
+          "protocol": "http",
+          "host": ["{{host}}"],
+          "port": "{{port}}",
+          "path": ["docs"]
+        },
         "description": "Open the interactive Swagger UI page."
       },
       "response": []
@@ -79,6 +113,16 @@
     {
       "key": "base_url",
       "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "host",
+      "value": "localhost",
+      "type": "string"
+    },
+    {
+      "key": "port",
+      "value": "8000",
       "type": "string"
     }
   ]

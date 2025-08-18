@@ -2,6 +2,27 @@
 
 Uma API REST moderna e robusta para gerenciamento de catálogo de produtos, construída com **FastAPI** e seguindo os princípios da **Arquitetura Hexagonal** (Ports & Adapters).
 
+## 📋 Pré-requisitos
+
+**Único requisito: Docker instalado**
+
+## 🚀 Como Rodar
+
+Execute um único comando para iniciar toda a aplicação:
+
+```bash
+docker compose up --build
+```
+
+Pronto! A aplicação completa estará rodando com:
+- **API**: http://localhost:8000
+- **Dashboard de Monitoramento**: http://localhost:3000/dashboards (admin/admin)
+- **Testes de Carga Automatizados**: A cada 10 minutos
+- **Sistema de Alertas**: WhatsApp para timeouts >5s
+
+## 📊 Relatório do Sonar
+- **Link do projeto**: https://sonarcloud.io/summary/overall?id=atapi18-pixel_api-products-comparison&branch=main
+
 ## 🏗️ Arquitetura
 
 ### Arquitetura Hexagonal (Ports & Adapters)
@@ -12,15 +33,15 @@ Este projeto implementa a **Arquitetura Hexagonal**, também conhecida como **Po
 ┌─────────────────────────────────────────────────────────┐
 │                    Adapters (External)                  │
 ├─────────────────────────────────────────────────────────┤
-│  HTTP Handlers  │  Repositories  │  External Services  │
+│  HTTP Handlers  │  Repositories  │  External Services   │
 ├─────────────────────────────────────────────────────────┤
-│                     Ports (Interfaces)                 │
+│                     Ports (Interfaces)                  │
 ├─────────────────────────────────────────────────────────┤
-│                   Core Domain (Business Logic)         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │   Models    │  │  Services   │  │ Repositories│     │
-│  │             │  │             │  │ Interfaces  │     │
-│  └─────────────┘  └─────────────┘  └─────────────┘     │
+│                   Core Domain (Business Logic)          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
+│  │   Models    │  │  Services   │  │ Repositories│      │
+│  │             │  │             │  │ Interfaces  │      │
+│  └─────────────┘  └─────────────┘  └─────────────┘      │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -87,6 +108,9 @@ app/
 - **🌐 CORS**: Suporte completo para aplicações web
 - **📝 Documentação**: Swagger/OpenAPI automático
 - **🔒 Middleware**: Timeout, logging e tratamento de erros
+- **📱 Sistema de Alertas**: WhatsApp para timeouts >5s
+- **📊 Dashboard de Monitoramento**: Métricas em tempo real via Grafana
+- **🧪 Testes Automatizados**: K6 rodando a cada 10 minutos
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -95,40 +119,10 @@ app/
 - **[Dependency Injector](https://python-dependency-injector.ets-labs.org/)**: Injeção de dependências
 - **[OpenTelemetry](https://opentelemetry.io/)**: Observabilidade e rastreamento
 - **[Uvicorn](https://www.uvicorn.org/)**: Servidor ASGI de alta performance
-
-## 📋 Pré-requisitos
-
-- Python 3.12+
-- pip ou poetry
-
-## 🚀 Instalação e Execução
-
-### 1. Clone o repositório
-```bash
-git clone <repository-url>
-cd example-products
-```
-
-### 2. Crie um ambiente virtual
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# ou
-.venv\Scripts\activate     # Windows
-```
-
-### 3. Instale as dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Execute a aplicação
-```bash
-cd app
-python main.py
-```
-
-A API estará disponível em: `http://localhost:8000`
+- **[Prometheus](https://prometheus.io/)**: Coleta de métricas
+- **[Grafana](https://grafana.com/)**: Visualização e dashboards
+- **[AlertManager](https://prometheus.io/docs/alerting/latest/alertmanager/)**: Sistema de alertas
+- **[K6](https://k6.io/)**: Testes de performance automatizados
 
 ## 📚 Documentação da API
 
@@ -137,6 +131,47 @@ Acesse a documentação interativa em: `http://localhost:8000/docs`
 
 ### ReDoc
 Documentação alternativa em: `http://localhost:8000/redoc`
+
+## 📮 Collection do Postman
+
+Para avaliadores que desejam testar manualmente, incluímos uma **collection completa do Postman**:
+
+📁 **Localização**: `tests/postman/Products API v1.postman_collection.json`
+
+### Como Importar:
+1. Abra o Postman
+2. Clique em **Import**
+3. Selecione o arquivo `tests/postman/Products API v1.postman_collection.json`
+4. A collection será importada com todas as variáveis configuradas
+
+### O que está incluído:
+- ✅ **Todos os endpoints** da API
+- ✅ **Variáveis configuradas** (localhost:8000)
+- ✅ **Testes de paginação** (diferentes page_size)
+- ✅ **Teste de timeout** (X-Delay: 5s para acionar alertas)
+- ✅ **Testes de erro** (endpoints inválidos)
+
+### Testes Especiais:
+- **🚨 Timeout Test**: Usa header `X-Delay: 5` para simular timeout e acionar alertas WhatsApp
+- **❌ Error Test**: Testa endpoint inexistente para validar tratamento de erros
+- **📄 Pagination Tests**: Diferentes valores de `page_size` e `page`
+
+## 📊 Dashboard de Monitoramento
+
+Acesse o dashboard completo em: `http://localhost:3000/dashboards`
+- **Usuário**: admin
+- **Senha**: admin
+
+O dashboard inclui:
+- 📈 Métricas de performance da API
+- 🔍 Top produtos e categorias mais acessados
+- ⚡ Tempo de resposta médio
+- 🚨 Alertas em tempo real
+- 📊 Volume de requisições
+
+## 🧪 Sistema de Alertas
+
+O sistema monitora automaticamente timeouts >5 segundos e envia alertas via **WhatsApp**.
 
 ## 🔌 Endpoints
 
@@ -199,35 +234,25 @@ curl "http://localhost:8000/v1/products?page=1&page_size=5"
 - Sony WH-1000XM5, Bose QuietComfort, Apple AirPods Max
 - Especificações: Drivers, Cancelamento de Ruído, Bateria, Conectividade
 
-## 📦 Rodando via Docker (backend + frontend juntos)
-
-O projeto fornece um Dockerfile multi-stage que compila o frontend e o incorpora na imagem Python, servindo o SPA em `/` e a API em `/v1`.
-
-Build e run:
-
-```bash
-docker build -t apiproductscomparison:latest .
-docker run --rm -p 8000:8000 apiproductscomparison:latest
-```
-
-Acesse:
-
-- Frontend: http://localhost:8000/
-- API: http://localhost:8000/v1/products
-
-Se preferir rodar o frontend em modo dev local (Vite) e o backend em Docker, mantenha `frontend/.env` apontando para `http://localhost:8000` e rode `npm run dev` dentro de `frontend/`.
-
 ### 📺 TVs
 - LG OLED, Samsung QLED, Sony BRAVIA
 - Especificações: Tamanho, Resolução, HDR, Plataforma Smart
 
 ## 🧪 Testes de Performance
 
-Use o header `X-Delay` para simular latência e testar comportamento sob carga:
+O sistema inclui testes automatizados de carga que rodam **a cada 10 minutos**:
+
+- ✅ Requisições normais
+- ❌ Testes de erro (404)
+- ⏱️ Testes de timeout (5 segundos)
+
+### Teste Manual com Delay
+
+Use o header `X-Delay` para simular latência:
 
 ```bash
-# Simula 2 segundos de delay
-curl -H "X-Delay: 2" "http://localhost:8000/v1/products"
+# Simula 5 segundos de delay (aciona alertas)
+curl -H "X-Delay: 5" "http://localhost:8000/v1/products"
 ```
 
 ## 🔧 Configuração
@@ -248,6 +273,15 @@ class Container(containers.DeclarativeContainer):
 - **Logging**: Logs estruturados com contexto de requisição
 - **OpenTelemetry**: Rastreamento distribuído
 
+### Alertas WhatsApp
+Para configurar os alertas via WhatsApp, edite as variáveis no `docker-compose.yml`:
+```yaml
+TWILIO_ACCOUNT_SID: your_account_sid
+TWILIO_AUTH_TOKEN: your_auth_token
+TWILIO_WHATSAPP_FROM: whatsapp:+14155238886
+WHATSAPP_TO: whatsapp:+5511999999999
+```
+
 ## 🏃‍♂️ Desenvolvimento
 
 ### Adicionando Novos Endpoints
@@ -261,23 +295,20 @@ class Container(containers.DeclarativeContainer):
 2. Configure no container de DI
 3. Injete no serviço correspondente
 
-### Executando com Reload Automático
-```bash
-cd app
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
 ## 📊 Monitoramento
 
-A aplicação inclui:
+A aplicação inclui monitoramento completo:
 - **OpenTelemetry**: Traces automáticos
 - **Logs Estruturados**: JSON com contexto
 - **Health Checks**: Endpoints de status
 - **Métricas**: Performance e uso
+- **Dashboard Grafana**: Visualização em tempo real
+- **Alertas WhatsApp**: Notificações de timeout
+- **Testes Automatizados**: K6 a cada 10 minutos
 
 ## 🤝 Contribuição
 
-1. Fork o projeto
+1. Fork o projeto https://github.com/atapi18-pixel/api-products-comparison
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
@@ -290,7 +321,7 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 ## 📞 Suporte
 
 Para dúvidas ou suporte:
-- Email: support@products-api.com
+- Email: jorgegabrielpereira@hotmail.com
 - Documentação: `http://localhost:8000/docs`
 - Issues: GitHub Issues
 

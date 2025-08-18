@@ -1,0 +1,60 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@yourcompany.com'
+  smtp_auth_username: 'your-email@gmail.com'
+  smtp_auth_password: 'your-app-password'
+  smtp_require_tls: true
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+  receiver: 'default'
+  routes:
+    # Rotas específicas para alertas de timeout
+    - match:
+        alert_type: timeout
+      receiver: 'timeout-critical'
+    - match:
+        alert_type: slow_request
+      receiver: 'timeout-warning'
+    - match:
+        alert_type: extreme_timeout
+      receiver: 'timeout-emergency'
+
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'admin@yourcompany.com'
+
+  # Receptor para alertas críticos de timeout
+  - name: 'timeout-critical'
+    email_configs:
+      - to: 'devops@yourcompany.com,oncall@yourcompany.com'
+    webhook_configs:
+      # WhatsApp via webhook server
+      - url: 'http://whatsapp-webhook:5000/webhook/whatsapp/critical'
+        send_resolved: true
+
+  # Receptor para alertas de warning
+  - name: 'timeout-warning'
+    email_configs:
+      - to: 'devops@yourcompany.com'
+
+  # Receptor para alertas extremamente críticos
+  - name: 'timeout-emergency'
+    email_configs:
+      - to: 'cto@yourcompany.com,devops@yourcompany.com,oncall@yourcompany.com'
+    webhook_configs:
+      # WhatsApp para emergências
+      - url: 'http://whatsapp-webhook:5000/webhook/whatsapp/emergency'
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']

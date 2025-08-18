@@ -10,7 +10,11 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry import trace as _otel_trace
 from .logger import setup_logger, logger_middleware
+import time
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+from fastapi import Response
 from .middlewares import timeout_middleware
 from .adapters.httphandlers.product_handler import router as product_router
 from .config import Container
@@ -96,6 +100,52 @@ app.add_middleware(
 
 app.include_router(product_router)
 
+# Prometheus metrics (RED/USE & Golden Signals)
+# Requests: total count, duration, in-progress
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "endpoint", "http_status"])
+REQUEST_ERRORS = Counter("http_request_errors_total", "Total HTTP request errors", ["method", "endpoint", "http_status"])
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "HTTP request latency in seconds", ["method", "endpoint"])
+IN_PROGRESS = Gauge("http_requests_inprogress", "In-progress HTTP requests", ["method", "endpoint"])
+
+# Container/process metrics
+CONTAINER_START_TIME = Gauge("container_start_time_seconds", "Container start time in unix seconds")
+CONTAINER_UPTIME = Gauge("container_uptime_seconds", "Container uptime in seconds")
+
+# initialize container start time
+_start_time = time.time()
+CONTAINER_START_TIME.set(_start_time)
+
+
+@app.middleware("http")
+async def prometheus_middleware(request, call_next):
+    method = request.method
+    endpoint = request.url.path
+    IN_PROGRESS.labels(method=method, endpoint=endpoint).inc()
+    start = time.time()
+    try:
+        resp = await call_next(request)
+        status = resp.status_code
+        # count requests and errors
+        REQUEST_COUNT.labels(method=method, endpoint=endpoint, http_status=status).inc()
+        if status >= 400:
+            REQUEST_ERRORS.labels(method=method, endpoint=endpoint, http_status=status).inc()
+        return resp
+    except Exception:
+        # unexpected exception - record as 500
+        REQUEST_ERRORS.labels(method=method, endpoint=endpoint, http_status=500).inc()
+        raise
+    finally:
+        elapsed = time.time() - start
+        REQUEST_LATENCY.labels(method=method, endpoint=endpoint).observe(elapsed)
+        IN_PROGRESS.labels(method=method, endpoint=endpoint).dec()
+
+
+@app.get("/metrics")
+def metrics():
+    # update uptime on scrape
+    CONTAINER_UPTIME.set(time.time() - _start_time)
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
 # Serve static frontend if present
 try:
     app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")
@@ -117,10 +167,33 @@ timeout_middleware(app)
 try:
     # Disable OpenTelemetry during pytest runs or when explicitly requested via env var
     if "pytest" not in sys.modules and os.environ.get("OTEL_DISABLED", "0") != "1":
-        resource = Resource(attributes={SERVICE_NAME: "products-api"})
+        resource = Resource(attributes={SERVICE_NAME: os.environ.get("OTEL_SERVICE_NAME", "products-api")})
         provider = TracerProvider(resource=resource)
-        processor = BatchSpanProcessor(ConsoleSpanExporter())
-        provider.add_span_processor(processor)
+        # Always keep a Console exporter for local debugging
+        provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
+        # If OTLP endpoint is provided, configure OTLP/gRPC exporter via env var
+        otel_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+        if otel_endpoint:
+            logger.info(f"OTel endpoint configured: {otel_endpoint}")
+            try:
+                # normalize endpoint (allow values like http://otel-collector:4317)
+                grpc_endpoint = otel_endpoint.replace("http://", "").replace("https://", "")
+                # import here to avoid hard dependency at module import time if not installed
+                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+                otlp_exporter = OTLPSpanExporter(endpoint=grpc_endpoint, insecure=True)
+                provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+                logger.info(f"Configured OTLP/gRPC span exporter -> {grpc_endpoint}")
+            except Exception:
+                logger.exception("Failed to configure OTLP exporter; spans will still be exported to console")
+
+        # ensure global tracer provider is set
+        try:
+            _otel_trace.set_tracer_provider(provider)
+        except Exception:
+            # non-fatal; instrumentor also accepts provider explicitly
+            pass
         FastAPIInstrumentor.instrument_app(app, tracer_provider=provider)
     else:
         logger.info("OpenTelemetry instrumentation disabled (pytest or OTEL_DISABLED=1)")

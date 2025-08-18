@@ -1,0 +1,14 @@
+notifiers:
+  - name: "webhook"
+    type: webhook
+    disableResolveMessage: false
+    isDefault: false
+    uid: webhook-notifier
+    secureSettings: {}
+    orgId: 1
+    settings:
+      httpMethod: POST
+      uploadImage: false
+      url: "http://localhost:5001/notify"
+      httpHeaderName1: "Content-Type"
+      httpHeaderValue1: "application/json"
