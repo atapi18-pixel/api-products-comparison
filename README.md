@@ -11,7 +11,7 @@ Uma API REST moderna e robusta para gerenciamento de catálogo de produtos, cons
 Execute um único comando para iniciar toda a aplicação:
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 Pronto! A aplicação completa estará rodando com:

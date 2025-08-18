@@ -9,7 +9,7 @@
 Execute um único comando para iniciar toda a aplicação:
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 Isso iniciará automaticamente:
