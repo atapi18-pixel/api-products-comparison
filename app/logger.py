@@ -29,6 +29,14 @@ def setup_logger(name: str = "product-api", level=logging.ERROR) -> logging.Logg
 
     app_filter = AppFilter(name)
 
+    # Ensure filter also attaches at logger level (tests expect a filter present in logger.filters)
+    try:
+        if not any(getattr(f, "app_name", None) == name for f in logger.filters):  # type: ignore[attr-defined]
+            logger.addFilter(app_filter)
+    except Exception:
+        # Non-fatal; handler-level filters still provide tagging
+        pass
+
     # Avoid adding multiple handlers if already set up
     if not logger.handlers:
         # Force logging to stdout so Docker captures the logs (Promtail tails container stdout)
