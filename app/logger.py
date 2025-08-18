@@ -100,63 +100,55 @@ def setup_logger(name: str = "product-api", level=logging.ERROR) -> logging.Logg
 def logger_middleware(app: FastAPI, logger: logging.Logger):
     @app.middleware("http")
     async def log_request_response(request: Request, call_next):
+        # Pular endpoints de alta cardinalidade / baixo valor em log
+        path = request.url.path
+        if path in ("/metrics", "/health") or path.startswith("/static"):
+            return await call_next(request)
+
         start_time = time.time()
 
-        # Read request body
-        body_bytes = await request.body()
-        request_body = body_bytes.decode("utf-8") if body_bytes else None
+        # Evitar custo de ler body se não for JSON pequeno
+        request_body = None
+        try:
+            if request.method in ("POST", "PUT", "PATCH"):
+                body_bytes = await request.body()
+                if body_bytes and len(body_bytes) <= 1024:  # 1KB máx
+                    request_body = body_bytes.decode("utf-8", errors="replace")
+        except Exception:
+            pass
 
-        # Process request
         response: Response = await call_next(request)
-
-        # Capture response body
-        resp_body = b""
-        async for chunk in response.body_iterator:
-            resp_body += chunk
-
-        # Replace the body_iterator with an async generator
-        async def async_body_iterator():
-            yield resp_body
-        response.body_iterator = async_body_iterator()
-
-        response_body = resp_body.decode("utf-8") if resp_body else None
 
         duration_ms = round((time.time() - start_time) * 1000, 2)
 
-        # Try to extract current trace/span ids for log correlation. Non-fatal if OpenTelemetry
-        # isn't configured or span context is absent.
+        # Correlation IDs (trace/span)
         trace_id = None
         span_id = None
         try:
             span = get_current_span()
             ctx = span.get_span_context()
-            if ctx is not None and ctx.trace_id != 0:
+            if ctx and ctx.trace_id != 0:
                 trace_id = format(ctx.trace_id, '032x')
-            if ctx is not None and ctx.span_id != 0:
+            if ctx and ctx.span_id != 0:
                 span_id = format(ctx.span_id, '016x')
         except Exception:
-            # ignore - keep logs functional even without otel
             pass
 
-        # Log everything in one line
         extra = {
             "method": request.method,
-            "url": str(request.url),
-            "request_headers": dict(request.headers),
-            "request_body": request_body,
+            "path": path,
+            "query": str(request.url.query) if request.url.query else None,
             "status_code": response.status_code,
-            "response_headers": dict(response.headers),
-            "response_body": response_body,
             "duration_ms": duration_ms,
         }
+        if request_body:
+            extra["request_body"] = request_body
         if trace_id:
             extra["trace_id"] = trace_id
-            # also add a `trace` key for Loki/Grafana trace->logs correlation (common convention)
             extra["trace"] = trace_id
         if span_id:
             extra["span_id"] = span_id
             extra["span"] = span_id
 
         logger.info("HTTP request completed", extra=extra)
-
         return response
