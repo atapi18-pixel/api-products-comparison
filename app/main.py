@@ -146,6 +146,12 @@ def metrics():
     CONTAINER_UPTIME.set(time.time() - _start_time)
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
+
+@app.get("/health")
+def health():
+    """Health check endpoint"""
+    return {"status": "healthy", "uptime": time.time() - _start_time}
+
 # Serve static frontend if present
 try:
     app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="frontend")

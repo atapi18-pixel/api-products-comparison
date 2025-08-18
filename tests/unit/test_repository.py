@@ -1,5 +1,6 @@
 import time
 import types
+from unittest.mock import patch, mock_open
 from app.adapters.repositories.inmem.product_repository import InMemoryProductRepository
 from app.core.domain.product import Product, ProductSpecification
 
@@ -73,3 +74,40 @@ def test_delay_respected(monkeypatch):
     assert slept["t"] == 2
     assert total == 1
     assert items[0].id == 1
+
+
+def test_repository_file_not_found():
+    """Testa comportamento quando arquivo JSON não existe"""
+    with patch('builtins.open', side_effect=FileNotFoundError("File not found")):
+        with patch('builtins.print') as mock_print:
+            repo = InMemoryProductRepository()
+            # Verifica que o aviso foi impresso
+            mock_print.assert_called()
+            # Verifica que o repositório ainda funciona (com lista vazia)
+            products, total = repo.find_paginated(page=1, size=5)
+            assert total == 0
+
+
+def test_repository_json_decode_error():
+    """Testa comportamento quando JSON é inválido"""
+    invalid_json = "{ invalid json"
+    with patch('builtins.open', mock_open(read_data=invalid_json)):
+        with patch('builtins.print') as mock_print:
+            repo = InMemoryProductRepository()
+            # Verifica que o erro foi capturado e impresso
+            mock_print.assert_called()
+            # Verifica que o repositório ainda funciona
+            products, total = repo.find_paginated(page=1, size=5)
+            assert total == 0
+
+
+def test_repository_general_exception():
+    """Testa comportamento quando há exceção geral"""
+    with patch('builtins.open', side_effect=Exception("General error")):
+        with patch('builtins.print') as mock_print:
+            repo = InMemoryProductRepository()
+            # Verifica que o erro foi capturado
+            mock_print.assert_called()
+            # Verifica que o repositório ainda funciona
+            products, total = repo.find_paginated(page=1, size=5)
+            assert total == 0
