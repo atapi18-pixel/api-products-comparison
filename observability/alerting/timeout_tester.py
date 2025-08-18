@@ -16,7 +16,7 @@ def simulate_slow_request():
         
         # Primeira request normal
         start_time = time.time()
-        response = requests.get('http://localhost:8000/v1/products', timeout=10)
+        requests.get('http://localhost:8000/v1/products', timeout=10)
         duration = time.time() - start_time
         
         print(f"✅ Request normal completada em {duration:.2f}s")
@@ -47,7 +47,7 @@ def make_concurrent_request(request_id):
     """Faz uma request individual (para criar concorrência)"""
     try:
         start_time = time.time()
-        response = requests.get('http://localhost:8000/v1/products', timeout=10)
+        requests.get('http://localhost:8000/v1/products', timeout=10)
         duration = time.time() - start_time
         
         if duration > 1:  # Log apenas requests mais lentas

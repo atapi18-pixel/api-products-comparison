@@ -50,7 +50,7 @@ def test_uvicorn_logger_configuration_exception():
                 return mock_main_logger
             elif "uvicorn" in name:
                 # Simula erro ao configurar uvicorn loggers
-                raise Exception("Uvicorn configuration failed")
+                raise RuntimeError("Uvicorn configuration failed")
             return logging.getLogger(name)
         
         mock_get_logger.side_effect = side_effect

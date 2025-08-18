@@ -84,7 +84,7 @@ def test_repository_file_not_found():
             # Verifica que o aviso foi impresso
             mock_print.assert_called()
             # Verifica que o repositório ainda funciona (com lista vazia)
-            products, total = repo.find_paginated(page=1, size=5)
+            _, total = repo.find_paginated(page=1, size=5)
             assert total == 0
 
 
@@ -97,7 +97,7 @@ def test_repository_json_decode_error():
             # Verifica que o erro foi capturado e impresso
             mock_print.assert_called()
             # Verifica que o repositório ainda funciona
-            products, total = repo.find_paginated(page=1, size=5)
+            _, total = repo.find_paginated(page=1, size=5)
             assert total == 0
 
 
@@ -109,5 +109,5 @@ def test_repository_general_exception():
             # Verifica que o erro foi capturado
             mock_print.assert_called()
             # Verifica que o repositório ainda funciona
-            products, total = repo.find_paginated(page=1, size=5)
+            _, total = repo.find_paginated(page=1, size=5)
             assert total == 0

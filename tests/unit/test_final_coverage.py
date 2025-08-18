@@ -18,10 +18,9 @@ def test_static_files_exception_handling():
     try:
         app.mount("/", StaticFiles(directory="nonexistent_directory", html=True), name="frontend")
         # Se chegou aqui, não houve exceção
-        mounted = True
     except Exception:
         # Exceção capturada como esperado (linha 160)
-        mounted = False
+        pass
     
     # O importante é que o código não quebra
     assert app is not None

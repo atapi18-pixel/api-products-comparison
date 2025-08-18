@@ -83,10 +83,8 @@ def test_concrete_implementations():
     """Testa que implementações concretas funcionam"""
     # Deve ser possível instanciar implementações concretas
     repo = ConcreteProductRepository()
-    assert repo is not None
     
     service = ConcreteProductService()
-    assert service is not None
     
     # Deve poder chamar os métodos
     products, total = repo.find_paginated(1, 10)

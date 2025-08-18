@@ -60,7 +60,7 @@ def test_setup_logger_uvicorn_exception(mock_get_logger):
     # Mock que gera exceção para uvicorn loggers
     def side_effect(name):
         if 'uvicorn' in name:
-            raise Exception("Uvicorn logger not available")
+            raise RuntimeError("Uvicorn logger not available")
         return MagicMock()
     
     mock_get_logger.side_effect = side_effect
@@ -96,7 +96,8 @@ def test_app_filter_functionality():
     
     # Testa logging para garantir que o filtro está funcionando
     logger.info("Test message")
-    assert True  # Se chegou aqui, o filtro está funcionando
+    # Verifica que o filtro foi adicionado ao logger
+    assert any(hasattr(f, 'filter') or hasattr(f, 'filter_record') for f in logger.filters)
 
 
 def test_logger_handler_exception_handling():

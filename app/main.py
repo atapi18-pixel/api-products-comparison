@@ -169,43 +169,47 @@ logger_middleware(app, logger)
 timeout_middleware(app)
 
 
-# OpenTelemetry
-try:
-    # Disable OpenTelemetry during pytest runs or when explicitly requested via env var
-    if "pytest" not in sys.modules and os.environ.get("OTEL_DISABLED", "0") != "1":
+def configure_opentelemetry(app: FastAPI, logger: logging.Logger) -> bool:
+    """Configure OpenTelemetry tracing.
+
+    Returns True if instrumentation was enabled, False otherwise. Never raises.
+    Extracted into a function to make it testable without re-importing the module
+    (which caused Prometheus metric duplication during tests).
+    """
+    try:
+        if "pytest" in sys.modules or os.environ.get("OTEL_DISABLED", "0") == "1":
+            logger.info("OpenTelemetry instrumentation disabled (pytest or OTEL_DISABLED=1)")
+            return False
+
         resource = Resource(attributes={SERVICE_NAME: os.environ.get("OTEL_SERVICE_NAME", "products-api")})
         provider = TracerProvider(resource=resource)
-        # Always keep a Console exporter for local debugging
         provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
-        # If OTLP endpoint is provided, configure OTLP/gRPC exporter via env var
         otel_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
         if otel_endpoint:
             logger.info(f"OTel endpoint configured: {otel_endpoint}")
             try:
-                # normalize endpoint (allow values like http://otel-collector:4317)
                 grpc_endpoint = otel_endpoint.replace("http://", "").replace("https://", "")
-                # import here to avoid hard dependency at module import time if not installed
-                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-
+                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter  # type: ignore
                 otlp_exporter = OTLPSpanExporter(endpoint=grpc_endpoint, insecure=True)
                 provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
                 logger.info(f"Configured OTLP/gRPC span exporter -> {grpc_endpoint}")
             except Exception:
                 logger.exception("Failed to configure OTLP exporter; spans will still be exported to console")
 
-        # ensure global tracer provider is set
         try:
             _otel_trace.set_tracer_provider(provider)
         except Exception:
-            # non-fatal; instrumentor also accepts provider explicitly
             pass
         FastAPIInstrumentor.instrument_app(app, tracer_provider=provider)
-    else:
-        logger.info("OpenTelemetry instrumentation disabled (pytest or OTEL_DISABLED=1)")
-except Exception:
-    # Fail-safe: do not break app startup if OTel setup fails
-    logger.exception("Failed to initialize OpenTelemetry, continuing without instrumentation")
+        return True
+    except Exception:
+        logger.exception("Failed to initialize OpenTelemetry, continuing without instrumentation")
+        return False
+
+
+# Invoke during normal startup (kept at module level for runtime behaviour, but now testable)
+configure_opentelemetry(app, logger)
 
 if __name__ == "__main__":
     # When executed directly, reference the app object. When run with

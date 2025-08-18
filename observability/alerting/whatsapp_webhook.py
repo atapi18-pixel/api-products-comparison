@@ -56,7 +56,12 @@ def format_alert_message(alert_data, alert_type="critical"):
     
     alert = alerts[0]  # Pega o primeiro alerta
     
-    emoji = "🚨" if alert_type == "critical" else "🔴" if alert_type == "emergency" else "⚠️"
+    if alert_type == "critical":
+        emoji = "🚨"
+    elif alert_type == "emergency":
+        emoji = "🔴"
+    else:
+        emoji = "⚠️"
     
     message = f"""{emoji} TIMEOUT ALERT {emoji}
 
