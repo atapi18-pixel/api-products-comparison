@@ -1252,8 +1252,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 24,
+        "h": 8,
+        "w": 12,
         "x": 0,
         "y": 28
       },
@@ -1297,12 +1297,139 @@
       "type": "logs"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "P95 latency (s)"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.0-17027759091",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "P95 latency (s)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(http_requests_total[1m]))",
+          "legendFormat": "Req/s",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(http_request_errors_total[1m]))",
+          "legendFormat": "Errors/s",
+          "refId": "C"
+        }
+      ],
+      "title": "⏱️ Latência & Tráfego",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 36
       },
       "id": 200,
       "panels": [],
@@ -1339,7 +1466,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 37
       },
       "id": 2,
       "options": {
@@ -1404,7 +1531,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 37
       },
       "id": 3,
       "options": {
@@ -1467,7 +1594,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 37
       },
       "id": 23,
       "options": {
@@ -1501,114 +1628,12 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 24,
-        "x": 0,
-        "y": 42
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.2.0-17027759091",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
-          "legendFormat": "P95 latency (s)",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(rate(http_requests_total[1m]))",
-          "legendFormat": "Req/s",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(rate(http_request_errors_total[1m]))",
-          "legendFormat": "Errors/s",
-          "refId": "C"
-        }
-      ],
-      "title": "⏱️ Latência & Tráfego",
-      "type": "timeseries"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 41
       },
       "id": 300,
       "panels": [],
@@ -1628,7 +1653,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 49
+        "y": 42
       },
       "id": 13,
       "options": {
@@ -1665,7 +1690,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 49
+        "y": 42
       },
       "id": 14,
       "options": {
@@ -1702,7 +1727,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 49
+        "y": 42
       },
       "id": 15,
       "options": {
@@ -1747,5 +1772,5 @@
   "timezone": "browser",
   "title": "🔮 AI Predictive Self-Healing Dashboard",
   "uid": "predictive-selfheal",
-  "version": 9
+  "version": 4
 }

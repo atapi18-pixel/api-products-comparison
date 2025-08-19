@@ -26,12 +26,25 @@ docker compose up -d --build
 Pronto! A aplicação completa estará rodando com:
 - **FRONTEND**: http://localhost:8000
  <br>
+
 - **Dashboard de Monitoramento**:
   ***aguarde 3 minutos para popular os dados***
  http://localhost:3000/dashboards (admin/admin)
 <br>
+- **Quick Tips**:
+  - Acesse os dashboards. Tenha em mente os tempos de refresh e evaluation do grafana. Aguarda 30 segundos entre as ações.
+  - Observe a latencia inicial.
+  - Mitigue manualmente e observe a latencia zerar.
+  - Depois gere latencia através do  `curl -X POST -H 'x-admin-token: secret'   'http://localhost:8000/admin/fault?mode=latency&inc=110'`
+  - Observe a nova latencia.
+  - Vá subindo a cada 30/40 segundos através do curl. Se preferir aumente o tempo ingerido no comando.
+  - Observe as linhas de latencia, forecast e SLO.
+  - Latencias acima de 1seg devem ser suficientes para o modelo atuar e mitigar automaticamente.
+
+<br>
+
 - **Testes de Carga Automatizados**: A cada 30 minutos
-- **Sistema de Alertas**: WhatsApp para timeouts >5s
+- **Sistema de Alertas**: WhatsApp para timeouts >5s ***(para gerar o alerta, recomendo usar o postman e alterar o X-Delay na collection)***
 
 ## 📊 Relatório do Sonar
 - **Link do projeto**: https://sonarcloud.io/summary/overall?id=atapi18-pixel_api-products-comparison&branch=main
