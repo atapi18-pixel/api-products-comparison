@@ -112,6 +112,17 @@ services:
     command: ["/perf/scheduler.sh"]
     restart: unless-stopped
 
+  synthetic:
+    image: grafana/k6:0.45.0
+    volumes:
+      - ./tests/perf:/perf:ro
+    depends_on:
+      - app
+      - prometheus
+    entrypoint: ["/bin/sh"]
+    command: ["/perf/synthetic_scheduler.sh"]
+    restart: unless-stopped
+
   alertmanager:
     image: prom/alertmanager:latest
     volumes:

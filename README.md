@@ -117,7 +117,9 @@ app/
 - **🔍 Paginação Eficiente**: Suporte a paginação customizável
 - **📱 Múltiplas Categorias**: Laptops, Smartphones, Headphones, TVs
 - **⚡ Performance Testing**: Header X-Delay para testes de carga
-- **📊 Observabilidade**: OpenTelemetry integrado
+ - **⚡ Performance Testing**: Header X-Delay para testes de carga
+ - **� Fault Injection / Auto-Healing**: Endpoints `/admin/fault` (latency & leak) + `/admin/mitigate`
+- **�📊 Observabilidade**: OpenTelemetry integrado
 - **🌐 CORS**: Suporte completo para aplicações web
 - **📝 Documentação**: Swagger/OpenAPI automático
 - **🔒 Middleware**: Timeout, logging e tratamento de erros
@@ -268,6 +270,55 @@ Use o header `X-Delay` para simular latência:
 curl -H "X-Delay: 5" "http://localhost:8000/v1/products"
 ```
 
+### Injeção de Latência Artificial (Fault Injection)
+
+Além do `X-Delay`, é possível injetar **latência artificial global** (em milissegundos) via endpoint administrativo. Essa latência é **somada** ao valor enviado no header `X-Delay` dentro da camada de repositório (não existe mais middleware separado para isso, evitando duplicação).
+
+Endpoint:
+```
+POST /admin/fault?mode=latency&inc=<ms>
+```
+Parâmetros:
+- `mode=latency` → indica que estamos ajustando latência artificial
+- `inc` → incremento (ou decremento, se negativo) em milissegundos (acumulativo, limitado entre 0 e 5000ms)
+
+Mitigação / Reset manual:
+```
+POST /admin/mitigate
+```
+
+Header de autenticação (default):
+```
+x-admin-token: secret
+```
+
+Exemplos:
+```bash
+# Injeta +150ms de latência global
+curl -X POST "http://localhost:8000/admin/fault?mode=latency&inc=150" -H "x-admin-token: secret"
+
+# Faz requisição com X-Delay de 1s (resultado ~1.15s incluindo sobrecarga/tolerância)
+time curl -H "X-Delay: 1" "http://localhost:8000/v1/products?page=1&page_size=5"
+
+# Aumenta mais 200ms (total agora 350ms)
+curl -X POST "http://localhost:8000/admin/fault?mode=latency&inc=200" -H "x-admin-token: secret"
+
+# Reseta (auto-healing manual)
+curl -X POST "http://localhost:8000/admin/mitigate" -H "x-admin-token: secret"
+```
+
+Observações:
+- A latência artificial é refletida na métrica `artificial_latency_injected_ms`.
+- O endpoint `/health` expõe `artificial_latency_ms` para inspeção rápida.
+- O reset automático pode ser disparado pelo mecanismo preditivo (ver documentação de self-healing).
+
+### Memory Leak Sintético
+Também é possível simular acúmulo de memória:
+```
+POST /admin/fault?mode=leak&kb=256
+```
+Isto aloca ~256KB e incrementa a métrica `memory_leak_chunks`. O reset (liberação) ocorre via `/admin/mitigate`.
+
 ## 🔧 Configuração
 
 ### Injeção de Dependências
@@ -285,6 +336,7 @@ class Container(containers.DeclarativeContainer):
 - **Timeout**: Timeout padrão de 5 segundos
 - **Logging**: Logs estruturados com contexto de requisição
 - **OpenTelemetry**: Rastreamento distribuído
+ - (REMOVIDO) Middleware de latência artificial global: agora a composição de latência (`X-Delay` + injetada) acontece diretamente no repositório para evitar duplicidade e facilitar teste.
 
 ### Alertas WhatsApp
 Para configurar os alertas via WhatsApp, edite as variáveis no `docker-compose.yml`:

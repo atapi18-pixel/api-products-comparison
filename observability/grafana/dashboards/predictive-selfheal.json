@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -109,7 +109,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 6,
         "x": 0,
         "y": 9
@@ -167,7 +167,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 3,
         "w": 5,
         "x": 6,
         "y": 9
@@ -198,6 +198,197 @@
         }
       ],
       "title": "🛠️ Mitigações Manuais",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 11,
+        "y": 9
+      },
+      "id": 39,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0-17027759091",
+      "targets": [
+        {
+          "expr": "artificial_latency_injected_ms",
+          "legendFormat": "Latency Injected (ms)",
+          "refId": "A"
+        }
+      ],
+      "title": "🧪 Latência Artificial Atual (ms)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dateTimeAsLocal"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "noValue": "—",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0-17027759091",
+      "targets": [
+        {
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "max by () (max_over_time(({job=\"predictive-monitor\"} |= \"mitigation executed\" !~ \"manual mitigation executed\" | json | unwrap unix_ts)[$__range])) * 1000",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "🕒 Última Auto",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dateTimeAsLocal"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 6,
+        "y": 12
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "noValue": "—",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "valueSize": 30
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0-17027759091",
+      "targets": [
+        {
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "max by () (max_over_time(({job=\"product-api\"} |= \"manual mitigation executed\" | json | unwrap unix_ts)[$__range])) * 1000",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "🕒 Última Manual",
       "type": "stat"
     },
     {
@@ -263,10 +454,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 13,
-        "x": 11,
-        "y": 9
+        "h": 6,
+        "w": 23,
+        "x": 0,
+        "y": 15
       },
       "id": 32,
       "options": {
@@ -290,8 +481,10 @@
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000",
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[30s])) by (le)) * 1000",
           "legendFormat": "Atual P95 (ms)",
+          "range": true,
           "refId": "B"
         },
         {
@@ -304,138 +497,12 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "dateTimeAsLocal"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 0,
-        "y": 13
-      },
-      "id": 16,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "noValue": "—",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0-17027759091",
-      "targets": [
-        {
-          "expr": "max by () (max_over_time(({job=\"predictive-monitor\"} |= \"mitigation executed\" !~ \"manual mitigation executed\" | json | unwrap unix_ts)[$__range])) * 1000",
-          "refId": "A"
-        }
-      ],
-      "title": "🕒 Última Auto",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "loki"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "dateTimeAsLocal"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 6,
-        "y": 13
-      },
-      "id": 17,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "noValue": "—",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 30
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.0-17027759091",
-      "targets": [
-        {
-          "expr": "max by () (max_over_time(({job=\"product-api\"} |= \"manual mitigation executed\" | json | unwrap unix_ts)[$__range])) * 1000",
-          "refId": "A"
-        }
-      ],
-      "title": "🕒 Última Manual",
-      "type": "stat"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 21
       },
       "id": 201,
       "panels": [],
@@ -472,7 +539,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 17
+        "y": 22
       },
       "id": 24,
       "options": {
@@ -533,7 +600,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 17
+        "y": 22
       },
       "id": 6,
       "options": {
@@ -593,7 +660,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 17
+        "y": 22
       },
       "id": 26,
       "options": {
@@ -655,7 +722,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 17
+        "y": 22
       },
       "id": 34,
       "options": {
@@ -717,7 +784,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 17
+        "y": 22
       },
       "id": 35,
       "options": {
@@ -779,7 +846,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 17
+        "y": 22
       },
       "id": 36,
       "options": {
@@ -844,7 +911,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "id": 25,
       "options": {
@@ -918,7 +985,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 20
+        "y": 25
       },
       "id": 28,
       "options": {
@@ -980,7 +1047,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 20
+        "y": 25
       },
       "id": 29,
       "options": {
@@ -1049,7 +1116,7 @@
         "h": 3,
         "w": 6,
         "x": 12,
-        "y": 20
+        "y": 25
       },
       "id": 37,
       "options": {
@@ -1075,7 +1142,9 @@
       "pluginVersion": "12.2.0-17027759091",
       "targets": [
         {
-          "expr": "increase(predict_risk_cycles_total[5m]) / (increase(predict_risk_cycles_total[5m]) + increase(predict_ok_cycles_total[5m]) + 1e-9)",
+          "editorMode": "code",
+          "expr": "increase(predict_risk_cycles_total[30s]) / (increase(predict_risk_cycles_total[30s]) + increase(predict_ok_cycles_total[30s]) + 1e-9)",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1147,7 +1216,7 @@
         "h": 3,
         "w": 6,
         "x": 18,
-        "y": 20
+        "y": 25
       },
       "id": 38,
       "options": {
@@ -1186,7 +1255,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 28
       },
       "id": 33,
       "options": {
@@ -1233,7 +1302,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 37
       },
       "id": 200,
       "panels": [],
@@ -1270,7 +1339,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 38
       },
       "id": 2,
       "options": {
@@ -1296,7 +1365,7 @@
       "pluginVersion": "12.2.0-17027759091",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le)) * 1000",
           "refId": "A"
         }
       ],
@@ -1335,7 +1404,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 38
       },
       "id": 3,
       "options": {
@@ -1398,7 +1467,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 38
       },
       "id": 23,
       "options": {
@@ -1496,7 +1565,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 42
       },
       "id": 10,
       "options": {
@@ -1515,7 +1584,7 @@
       "pluginVersion": "12.2.0-17027759091",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
           "legendFormat": "P95 latency (s)",
           "refId": "A"
         },
@@ -1539,7 +1608,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 48
       },
       "id": 300,
       "panels": [],
@@ -1559,7 +1628,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 44
+        "y": 49
       },
       "id": 13,
       "options": {
@@ -1596,7 +1665,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 44
+        "y": 49
       },
       "id": 14,
       "options": {
@@ -1633,7 +1702,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 44
+        "y": 49
       },
       "id": 15,
       "options": {
@@ -1678,5 +1747,5 @@
   "timezone": "browser",
   "title": "🔮 AI Predictive Self-Healing Dashboard",
   "uid": "predictive-selfheal",
-  "version": 94
+  "version": 9
 }

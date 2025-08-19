@@ -191,6 +191,11 @@ async def inject_fault(mode: str, inc: int = 0, kb: int = 0, x_admin_token: str 
     if mode == "latency":
         _artificial_latency_ms = max(0, min(5000, _artificial_latency_ms + inc))
         ARTIFICIAL_LATENCY_INJECTED_MS.set(_artificial_latency_ms)
+        # Expor também via env para que camadas internas (ex: repository) possam compor com X-Delay sem dependência circular
+        try:
+            os.environ["ARTIFICIAL_LATENCY_MS"] = str(_artificial_latency_ms)
+        except Exception:
+            pass
         return {"mode": mode, "artificial_latency_ms": _artificial_latency_ms}
     elif mode == "leak":
         # allocate kb chunk
@@ -212,6 +217,10 @@ async def mitigate(request: Request, all: bool = True, x_admin_token: str | None
     _memory_leak_holder.clear()
     # update gauges
     ARTIFICIAL_LATENCY_INJECTED_MS.set(0)
+    try:
+        os.environ["ARTIFICIAL_LATENCY_MS"] = "0"
+    except Exception:
+        pass
     MEMORY_LEAK_CHUNKS.set(0)
     # Emit structured log so Loki/Grafana panels can also show manual mitigation events
     try:
@@ -257,12 +266,8 @@ logger_middleware(app, logger)
 # Timeout middleware
 timeout_middleware(app)
 
-# Latency injection middleware (after timeout to simulate slow handler execution)
-@app.middleware("http")
-async def artificial_latency(request, call_next):
-    if _artificial_latency_ms > 0 and not request.url.path.startswith("/admin"):
-        await asyncio.sleep(_artificial_latency_ms / 1000.0)
-    return await call_next(request)
+# (Middleware de latência global removido; agora a latência artificial é aplicada
+# diretamente na camada de repositório combinando X-Delay + ARTIFICIAL_LATENCY_MS.)
 
 
 def configure_opentelemetry(app: FastAPI, logger: logging.Logger) -> bool:

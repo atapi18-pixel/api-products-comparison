@@ -15,7 +15,7 @@ echo "🚀 Iniciando scheduler de load test - execução a cada 30 minutos"
 # Loop infinito executando load test a cada 30 minutos
 while true; do
   echo "⏰ $(date): Aguardando serviços ficarem prontos..."
-  sleep 30  # Aguardar inicial para serviços estarem prontos
+  sleep 10  # Aguardar inicial para serviços estarem prontos
 
   echo "🔥 $(date): Iniciando load test com cenários de erro e timeout..."
   k6 run /perf/loadtest.js

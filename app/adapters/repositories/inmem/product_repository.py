@@ -87,8 +87,18 @@ class InMemoryProductRepository(ProductRepository):
             - int: Total number of products in the repository
         """
         delay = kwargs.get("delay", 0)
-        if delay > 0:
-            time.sleep(delay)
+        try:
+            base_delay = float(delay)
+        except Exception:
+            base_delay = 0.0
+        # Adiciona latência artificial global (ms) se configurada via /admin/fault
+        try:
+            injected_ms = float(os.environ.get("ARTIFICIAL_LATENCY_MS", "0"))
+        except Exception:
+            injected_ms = 0.0
+        total_sleep = base_delay + (injected_ms / 1000.0)
+        if total_sleep > 0:
+            time.sleep(total_sleep)
 
         # Apply optional filters
         products = self._products
