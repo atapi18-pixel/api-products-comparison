@@ -16,7 +16,7 @@ Env vars:
   AUTO_HEAL=1
   WHATSAPP_WEBHOOK_URL=http://whatsapp-webhook:5000/webhook/whatsapp/critical
 """
-import os, time, math, json, statistics, requests
+import os, time, json, statistics, requests
 from prometheus_client import Counter, Gauge, CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
 from datetime import datetime, timezone
 
@@ -67,7 +67,6 @@ MIN_R2 = float(os.getenv('PREDICT_MIN_R2','0.2'))
 PRE_TIMEOUT_RATIO = float(os.getenv('PREDICT_PRE_TIMEOUT_RATIO','0.9'))  # mitigar se forecast alcançar 90% do timeout
 _weak_prev_cycle = False  # estado para confirmação dupla
 _in_risk_state = False    # estado de histerese
-last_cycle_forecast_r2 = None  # track r2
 last_mitigation_time = None
 
 def log_json(obj: dict):
@@ -166,7 +165,6 @@ def predictive_cycle():
 
     results = []
     now = _now_iso()
-    actions = []
 
     def evaluate(name, series, threshold, unit, kind):
         if not series:
@@ -196,7 +194,7 @@ def predictive_cycle():
     reason = None
     top = None
     global LAST_MIT_UNIX
-    global last_mitigation_time, last_cycle_forecast_r2
+    global last_mitigation_time
 
     # Update forecast metric for p95 if present
     for r in results:
