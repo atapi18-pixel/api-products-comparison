@@ -39,6 +39,7 @@ Pronto! A aplicação completa estará rodando com:
   - Observe a nova latencia.
   - Vá subindo a cada 30/40 segundos através do curl. Se preferir aumente o tempo ingerido no comando.
   - Observe as linhas de latencia, forecast e SLO.
+  - Observe que o percentual de probabilidade de acontecer um problema é alterado conforme crescimento da latencia, porém não só pelo numero, mas também pela quantidade de vezes que foi aumentada, representando uma tendência.
   - Latencias acima de 1seg devem ser suficientes para o modelo atuar e mitigar automaticamente.
 
 <br>
