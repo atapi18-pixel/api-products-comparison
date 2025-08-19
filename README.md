@@ -25,7 +25,11 @@ docker compose up -d --build
 
 Pronto! A aplicação completa estará rodando com:
 - **FRONTEND**: http://localhost:8000
-- **Dashboard de Monitoramento**: http://localhost:3000/dashboards (admin/admin)
+ <br>
+- **Dashboard de Monitoramento**:
+  ***aguarde 3 minutos para popular os dados***
+ http://localhost:3000/dashboards (admin/admin)
+<br>
 - **Testes de Carga Automatizados**: A cada 30 minutos
 - **Sistema de Alertas**: WhatsApp para timeouts >5s
 

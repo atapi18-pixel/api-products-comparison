@@ -210,3 +210,4 @@ PROXIMOS_PASSOS.md
 observability/fluent-bit/storage/
 observability/loki-data/index/
 .vscode/settings.json
+.devcontainer/
