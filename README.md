@@ -30,7 +30,7 @@ Pronto! A aplicação completa estará rodando com:
 - **Dashboard de Monitoramento**:
   ***aguarde 3 minutos para popular os dados***
  http://localhost:3000/dashboards (admin/admin)
-<br>
+
 - **Quick Tips**:
   - Acesse os dashboards. Tenha em mente os tempos de refresh e evaluation do grafana. Aguarda 30 segundos entre as ações.
   - Observe a latencia inicial.
@@ -41,8 +41,6 @@ Pronto! A aplicação completa estará rodando com:
   - Observe as linhas de latencia, forecast e SLO.
   - Observe que o percentual de probabilidade de acontecer um problema é alterado conforme crescimento da latencia, porém não só pelo numero, mas também pela quantidade de vezes que foi aumentada, representando uma tendência.
   - Latencias acima de 1seg devem ser suficientes para o modelo atuar e mitigar automaticamente.
-
-<br>
 
 - **Testes de Carga Automatizados**: A cada 30 minutos
 - **Sistema de Alertas**: WhatsApp para timeouts >5s ***(para gerar o alerta, recomendo usar o postman e alterar o X-Delay na collection)***
@@ -131,9 +129,8 @@ app/
 - **🔍 Paginação Eficiente**: Suporte a paginação customizável
 - **📱 Múltiplas Categorias**: Laptops, Smartphones, Headphones, TVs
 - **⚡ Performance Testing**: Header X-Delay para testes de carga
- - **⚡ Performance Testing**: Header X-Delay para testes de carga
- - **� Fault Injection / Auto-Healing**: Endpoints `/admin/fault` (latency & leak) + `/admin/mitigate`
-- **�📊 Observabilidade**: OpenTelemetry integrado
+- **🔌 Fault Injection / Auto-Healing**: Endpoints `/admin/fault` (latency & leak) + `/admin/mitigate`
+- **📊 Observabilidade**: OpenTelemetry integrado
 - **🌐 CORS**: Suporte completo para aplicações web
 - **📝 Documentação**: Swagger/OpenAPI automático
 - **🔒 Middleware**: Timeout, logging e tratamento de erros
