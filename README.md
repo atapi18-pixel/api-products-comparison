@@ -2,7 +2,16 @@
 
 Uma API REST moderna e robusta para gerenciamento de catálogo de produtos, construída com **FastAPI** e seguindo os princípios da **Arquitetura Hexagonal** (Ports & Adapters).
 
-## 📋 Pré-requisitos
+## 🔮 Auto-healing preditivo
+
+O projeto inclui um mecanismo de **mitigação preditiva automática** que detecta tendência de violação de SLO (latência P95 ou taxa de erro) e executa uma ação de recuperação antes do impacto.  
+➡ Documentação completa: [PREDICTIVE_SELF_HEALING.md](./PREDICTIVE_SELF_HEALING.md)
+
+Principais recursos no dashboard `predictive-selfheal`:
+
+Para uma demonstração rápida: injete latência com `/admin/fault` e aguarde o ciclo preditivo acionar `/admin/mitigate` automaticamente.
+
+## � Pré-requisitos
 
 **Único requisito: Docker instalado**
 
@@ -17,7 +26,7 @@ docker compose up -d --build
 Pronto! A aplicação completa estará rodando com:
 - **FRONTEND**: http://localhost:8000
 - **Dashboard de Monitoramento**: http://localhost:3000/dashboards (admin/admin)
-- **Testes de Carga Automatizados**: A cada 10 minutos
+- **Testes de Carga Automatizados**: A cada 30 minutos
 - **Sistema de Alertas**: WhatsApp para timeouts >5s
 
 ## 📊 Relatório do Sonar
@@ -110,7 +119,7 @@ app/
 - **🔒 Middleware**: Timeout, logging e tratamento de erros
 - **📱 Sistema de Alertas**: WhatsApp para timeouts >5s
 - **📊 Dashboard de Monitoramento**: Métricas em tempo real via Grafana
-- **🧪 Testes Automatizados**: K6 rodando a cada 10 minutos
+- **🧪 Testes Automatizados**: K6 rodando a cada 30 minutos
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -240,7 +249,7 @@ curl "http://localhost:8000/v1/products?page=1&page_size=5"
 
 ## 🧪 Testes de Performance
 
-O sistema inclui testes automatizados de carga que rodam **a cada 10 minutos**:
+O sistema inclui testes automatizados de carga que rodam **a cada 30 minutos**:
 
 - ✅ Requisições normais
 - ❌ Testes de erro (404)
@@ -304,7 +313,7 @@ A aplicação inclui monitoramento completo:
 - **Métricas**: Performance e uso
 - **Dashboard Grafana**: Visualização em tempo real
 - **Alertas WhatsApp**: Notificações de timeout
-- **Testes Automatizados**: K6 a cada 10 minutos
+- **Testes Automatizados**: K6 a cada 30 minutos
 
 ## 🤝 Contribuição
 

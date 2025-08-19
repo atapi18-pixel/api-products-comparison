@@ -1,15 +1,15 @@
-# ✅ OBSERVABILIDADE COMPLETA + ALERTAS - STATUS FINAL
+# ✅ Observabilidade Completa + Alertas - Status Final
 
-## 🎯 **STACK DE OBSERVABILIDADE IMPLEMENTADA**
+## 🎯 Stack de Observabilidade Implementada
 
-### **📊 Métricas (Prometheus + Grafana)**
+### 📊 Métricas (Prometheus + Grafana)
 - ✅ **RED Metrics**: Rate, Errors, Duration
 - ✅ **USE Metrics**: Utilization, Saturation, Errors  
 - ✅ **Golden Signals**: Traffic, Errors, Latency, Saturation
 - ✅ **Custom Metrics**: HTTP requests, duration histograms, in-progress requests
 - ✅ **Alerting**: AlertManager configurado
 
-### **📈 Traces (Tempo + Grafana)**
+### 📈 Traces (Tempo + Grafana)
 - ✅ **OpenTelemetry**: FastAPI instrumentado automaticamente
 - ✅ **Trace Collection**: otel-collector → Tempo → Grafana
 - ✅ **TraceQL Support**: Query language para busca avançada de traces
@@ -17,13 +17,13 @@
 - ✅ **Trace-to-Logs**: Integração Tempo → Loki
 - ✅ **Trace-to-Metrics**: Integração Tempo → Prometheus
 
-### **📝 Logs (Loki + Grafana)**
+### 📝 Logs (Loki + Grafana)
 - ✅ **Log Collection**: Fluent-bit → Loki → Grafana
 - ✅ **Structured Logs**: JSON format com trace correlation
 - ✅ **Live Tail**: Logs em tempo real no dashboard
 - ✅ **Log Correlation**: Traces linkados com logs via trace_id
 
-### **🚨 Alertas (AlertManager + Email + WhatsApp)**
+### 🚨 Alertas (AlertManager + Email + WhatsApp)
 - ✅ **Timeout Alerts**: Detecção automática de requests > 5 segundos
 - ✅ **Multi-Channel**: Email + WhatsApp + Slack
 - ✅ **Smart Routing**: Alertas críticos, warning e emergência
@@ -31,7 +31,7 @@
 - ✅ **Webhook System**: Python Flask server para WhatsApp
 - ✅ **Test Framework**: Scripts para simular e testar alertas
 
-### **🎛️ Dashboard Grafana**
+### 🎛️ Dashboard Grafana
 - ✅ **RED Section**: Requests, Errors, Duration
 - ✅ **USE Section**: CPU, Memory, Disk I/O
 - ✅ **Golden Signals**: Traffic, Errors, Latency, Saturation
@@ -41,16 +41,16 @@
 
 ---
 
-## 🔧 **CONFIGURAÇÕES FINAIS**
+## 🔧 Configurações Finais
 
-### **Datasources Configurados**
+### Datasources Configurados
 - **Tempo**: http://tempo:3200 (traces)
 - **Loki**: http://loki:3100 (logs) 
 - **Prometheus**: http://prometheus:9090 (metrics)
 
 ---
 
-## 🚀 **SERVIÇOS ATIVOS**
+## 🚀 Serviços Ativos
 
 ```bash
 ✅ app              (port 8000) - API Products
@@ -65,9 +65,9 @@
 
 ---
 
-## 🚨 **SISTEMA DE ALERTAS DE TIMEOUT**
+## 🚨 Sistema de Alertas de Timeout
 
-### **Alertas Configurados**
+### Alertas Configurados
 1. **RequestTimeoutAlert** (CRÍTICO)
    - **Trigger**: P95 latency > 5s por 1 minuto
    - **Notificação**: WhatsApp emergência
@@ -83,10 +83,10 @@
    - **Notificação**: WhatsApp emergência
    - **Severidade**: Critical
 
-### **Canais de Notificação**
+### Canais de Notificação
 - ✅ **WhatsApp**: Twilio API com mensagens formatadas 
 
-### **Recursos Avançados**
+### Recursos Avançados
 - ✅ **Smart Routing**: Alertas roteados por severidade
 - ✅ **Rich Templates**: HTML + emojis + runbook links
 - ✅ **Inhibition Rules**: Evita spam de alertas
@@ -95,7 +95,7 @@
 
 ---
 
-## 📋 **FUNCIONALIDADES TESTADAS**
+## 📋 Funcionalidades Testadas
 
 ### **Traces**
 - ✅ Geração automática via FastAPI instrumentor
@@ -126,7 +126,7 @@
 
 ---
 
-## 🎯 **ENDPOINTS MONITORADOS**
+## 🎯 Endpoints Monitorados
 
 - **Traces**: `GET /v1/products` (filtered)
 - **Metrics**: All endpoints (including `/metrics` filtered in dashboard)
@@ -136,7 +136,7 @@
 
 ---
 
-## 🔗 **URLs DE ACESSO**
+## 🔗 URLs de Acesso
 
 ### **Dashboards e Monitoramento**
 - **Grafana Dashboard**: http://localhost:3000 (admin/admin)
@@ -157,7 +157,7 @@
 
 ---
 
-## 🏆 **OBSERVABILIDADE COMPLETA + ALERTAS ALCANÇADA**
+## 🏆 Observabilidade Completa + Alertas Alcançada
 
 **Three Pillars of Observability**: ✅ Metrics ✅ Traces ✅ Logs  
 **Fourth Pillar - Alerting**: ✅ Multi-Channel ✅ Smart Routing ✅ Timeout Detection  
@@ -169,15 +169,15 @@
 
 ---
 
-## 📋 **COMO USAR O SISTEMA DE ALERTAS**
+## 📋 Como Usar o Sistema de Alertas
 
-### **Para Configurar (Produção)**
+### Para Configurar (Produção)
 1. Copie `observability/alerting/.env.example` para `.env`
 2. Configure credenciais Twilio
 3. Execute: `docker compose up -d --build`
 4. Teste: `python observability/alerting/test_alerts.py`
 
-### **Para Simular Timeouts**
+### Para Simular Timeouts
 ```bash
 # Gera requests simultâneas para criar latência
 python observability/alerting/timeout_tester.py
@@ -186,7 +186,7 @@ python observability/alerting/timeout_tester.py
 for i in {1..50}; do curl -s http://localhost:8000/v1/products & done
 ```
 
-### **Para Testar Webhooks**
+### Para Testar Webhooks
 ```bash
 # Teste direto do webhook
 curl -X POST http://localhost:5000/test/whatsapp
@@ -197,6 +197,6 @@ curl http://localhost:5000/health
 
 ---
 
-*Data: 18 de Agosto, 2025*  
-*Status: OPERACIONAL* 🟢  
-*Alertas: CONFIGURADOS* 🚨
+*Data: 18 de agosto de 2025*  
+*Status: Operacional* 🟢  
+*Alertas: Configurados* 🚨  

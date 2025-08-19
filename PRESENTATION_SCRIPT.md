@@ -22,7 +22,7 @@
 - Próximos passos
 
 **Script:**
-> "Hoje vou apresentar uma implementação prática da arquitetura hexagonal, também conhecida como Ports & Adapters, usando FastAPI. Vamos ver como essa abordagem nos ajuda a criar aplicações mais testáveis, flexíveis e maintíveis."
+> "Hoje vou apresentar uma implementação prática da arquitetura hexagonal, também conhecida como Ports & Adapters, usando FastAPI. Vamos ver como essa abordagem nos ajuda a criar aplicações mais testáveis, flexíveis e fáceis de manter."
 
 ### 2. Conceitos Fundamentais (4-5 minutos)
 
@@ -59,7 +59,7 @@
 - 📈 **Escalabilidade:** Arquitetura preparada para crescimento
 
 **Script:**
-> "Os benefícios são tanto técnicos quanto de negócio. Tecnicamente, ganhamos testabilidade, flexibilidade e manutenibilidade. Do ponto de vista de negócio, reduzimos custos com bugs, aceleramos o desenvolvimento e facilitamos integrações futuras."
+> "Os benefícios são tanto técnicos quanto de negócio. Tecnicamente, ganhamos testabilidade, flexibilidade e facilidade de manutenção. Do ponto de vista de negócio, reduzimos custos com bugs, aceleramos o desenvolvimento e facilitamos integrações futuras."
 
 ### 4. Demonstração Prática da API (5-6 minutos)
 
@@ -73,7 +73,7 @@ app/
 ├── adapters/
 │   ├── httphandlers/    # Controllers REST
 │   └── repositories/    # Acesso a dados
-└── main.py             # Configuração da aplicação
+└── main.py              # Configuração da aplicação
 ```
 
 **Script:**
@@ -86,7 +86,7 @@ app/
 - Demonstrar paginação e filtros
 
 **Script para Demo:**
-> "Vou iniciar nossa API e mostrar a documentação automática gerada pelo FastAPI. Vejam como temos endpoints bem documentados, com exemplos de request e response. Agora vou fazer algumas requisições para mostrar a paginação funcionando."
+> "Vou iniciar nossa API e mostrar a documentação automática gerada pelo FastAPI. Vejam como temos endpoints bem documentados, com exemplos de request e response. Agora vou fazer algumas requisições para mostrar a paginação em funcionamento."
 
 **Comandos para Demo:**
 ```bash
@@ -118,7 +118,7 @@ HTTP Request → Handler → Service → Repository → Data Source
 ```
 
 **Script:**
-> "O fluxo é simples: uma requisição HTTP chega no handler (adapter), que chama o service (core), que usa o repository (port) implementado por um adapter. Vejam como o core nunca depende diretamente de infraestrutura."
+> "O fluxo é simples: uma requisição HTTP chega no handler (adapter), que chama o service (core), que usa o repository (port) implementado por um adapter. Notem como o core nunca depende diretamente de infraestrutura."
 
 **Slide 11: Injeção de Dependências**
 - Uso do `dependency-injector`
@@ -127,7 +127,7 @@ HTTP Request → Handler → Service → Repository → Data Source
 - Facilita testes e manutenção
 
 **Script:**
-> "Usamos injeção de dependências para conectar tudo. O container gerencia as dependências automaticamente, facilitando testes e permitindo trocar implementações facilmente."
+> "Usamos injeção de dependências para conectar tudo. O container gerencia as dependências automaticamente, facilitando testes e permitindo trocar implementações com facilidade."
 
 ### 6. Próximos Passos (2-3 minutos)
 
@@ -144,7 +144,7 @@ HTTP Request → Handler → Service → Repository → Data Source
 
 ### 7. Conclusão (1-2 minutos)
 
-**Slide 14: Recap dos Benefícios**
+**Slide 14: Recapitulando os Benefícios**
 - ✨ **Código limpo** e bem organizado
 - 🧪 **Altamente testável** com mocks fáceis
 - 🔄 **Flexível** para mudanças futuras
@@ -157,7 +157,7 @@ HTTP Request → Handler → Service → Repository → Data Source
 - Perguntas e discussões
 
 **Script Final:**
-> "Em resumo, a arquitetura hexagonal nos deu um código mais limpo, testável e flexível. Estamos preparados para escalar e evoluir conforme as necessidades do negócio. Agora estou aberto para perguntas!"
+> "Em resumo, a arquitetura hexagonal nos proporcionou um código mais limpo, testável e flexível. Estamos preparados para escalar e evoluir conforme as necessidades do negócio. Agora estou aberto para perguntas!"
 
 ---
 

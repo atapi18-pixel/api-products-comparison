@@ -69,6 +69,7 @@ services:
       - grafana-storage:/var/lib/grafana
       - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+  # predictive dashboard lives with products-dashboard.json in dashboards mount
     depends_on:
       - tempo
       - prometheus
@@ -155,6 +156,37 @@ services:
       - TWILIO_WHATSAPP_FROM=${TWILIO_WHATSAPP_FROM:-whatsapp:+14155238886}
       - WHATSAPP_TO_CRITICAL=${WHATSAPP_TO_CRITICAL:-whatsapp:+5521995715701}
       - WHATSAPP_TO_EMERGENCY=${WHATSAPP_TO_EMERGENCY:-whatsapp:+5521995715701}
+
+  predictive-monitor:
+    build: .
+    command: ["python","observability/predictive/predictive_monitor.py"]
+    container_name: predictive-monitor
+    restart: unless-stopped
+    volumes:
+      - ./observability/logs:/logs:rw
+    ports:
+      - "9105:9105"  # expose metrics endpoint to host
+    environment:
+      PROM_URL: "http://prometheus:9090"
+      TARGET_SERVICE_BASE: "http://app:8000"
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-secret}
+      SLO_P95_MS: "300" #Para alarmar, reduzir para 2
+      SLO_ERROR_RATE: "0.02" #Para alarmar, reduzir para 0.0001
+      MEM_MAX_BYTES: "300000000"
+      PREDICT_HORIZON_SECONDS: "180" #Para alarmar, reduzir para 60
+      #Alertas para o WhatsApp só funcionam para o meu numero. Restrição do Twilio
+      AUTO_HEAL: "1"
+      CYCLE_INTERVAL_SECONDS: "5"
+      WHATSAPP_WEBHOOK_URL: "http://whatsapp-webhook:5000/webhook/whatsapp/critical"
+      GRAFANA_BASE_URL: "http://grafana:3000"
+      GRAFANA_USER: "admin"
+      GRAFANA_PASSWORD: "admin"
+      PREDICT_METRICS_PORT: "9105"
+      PREDICT_COOLDOWN_SECONDS: "60"
+    depends_on:
+      - prometheus
+      - app
+      - whatsapp-webhook
 
 volumes:
   grafana-storage: {}

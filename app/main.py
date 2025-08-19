@@ -19,6 +19,15 @@ from .middlewares import timeout_middleware
 from .adapters.httphandlers.product_handler import router as product_router
 from .config import Container
 import logging
+import asyncio
+import json
+from datetime import datetime
+from fastapi import HTTPException, Header, Request
+
+# --- Fault injection state (module-level for simplicity) ---
+_artificial_latency_ms: int = 0
+_memory_leak_holder: list[bytes] = []
+_ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "secret")
 
 logger = setup_logger(level=logging.INFO)
 
@@ -111,9 +120,22 @@ IN_PROGRESS = Gauge("http_requests_inprogress", "In-progress HTTP requests", ["m
 CONTAINER_START_TIME = Gauge("container_start_time_seconds", "Container start time in unix seconds")
 CONTAINER_UPTIME = Gauge("container_uptime_seconds", "Container uptime in seconds")
 
+# Self-healing / fault injection observability metrics
+ARTIFICIAL_LATENCY_INJECTED_MS = Gauge(
+    "artificial_latency_injected_ms",
+    "Currently injected artificial latency (ms) for fault simulation"
+)
+MEMORY_LEAK_CHUNKS = Gauge(
+    "memory_leak_chunks",
+    "Number of allocated artificial memory leak chunks"
+)
+
 # initialize container start time
 _start_time = time.time()
 CONTAINER_START_TIME.set(_start_time)
+# Initialize fault related gauges to zero
+ARTIFICIAL_LATENCY_INJECTED_MS.set(0)
+MEMORY_LEAK_CHUNKS.set(0)
 
 
 @app.middleware("http")
@@ -150,7 +172,74 @@ def metrics():
 @app.get("/health")
 def health():
     """Health check endpoint"""
-    return {"status": "healthy", "uptime": time.time() - _start_time}
+    return {"status": "healthy", "uptime": time.time() - _start_time, "artificial_latency_ms": _artificial_latency_ms, "leak_chunks": len(_memory_leak_holder)}
+
+
+def _auth_admin(x_admin_token: str | None):
+    if x_admin_token != _ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="invalid admin token")
+
+
+@app.post("/admin/fault")
+async def inject_fault(mode: str, inc: int = 0, kb: int = 0, x_admin_token: str | None = Header(default=None)):
+    """Inject artificial degradation.
+    - mode=latency & inc=NN adds milliseconds per request (capped)
+    - mode=leak & kb=NN allocates memory chunks (approx)
+    """
+    _auth_admin(x_admin_token)
+    global _artificial_latency_ms
+    if mode == "latency":
+        _artificial_latency_ms = max(0, min(5000, _artificial_latency_ms + inc))
+        ARTIFICIAL_LATENCY_INJECTED_MS.set(_artificial_latency_ms)
+        return {"mode": mode, "artificial_latency_ms": _artificial_latency_ms}
+    elif mode == "leak":
+        # allocate kb chunk
+        if kb > 0:
+            _memory_leak_holder.append(b"0" * 1024 * kb)
+        MEMORY_LEAK_CHUNKS.set(len(_memory_leak_holder))
+        return {"mode": mode, "leak_chunks": len(_memory_leak_holder), "allocated_kb": kb}
+    else:
+        raise HTTPException(status_code=400, detail="unknown mode")
+
+
+@app.post("/admin/mitigate")
+async def mitigate(request: Request, all: bool = True, x_admin_token: str | None = Header(default=None)):
+    """Reset artificial faults (self-healing action)."""
+    _auth_admin(x_admin_token)
+    global _artificial_latency_ms
+    _artificial_latency_ms = 0
+    freed = len(_memory_leak_holder)
+    _memory_leak_holder.clear()
+    # update gauges
+    ARTIFICIAL_LATENCY_INJECTED_MS.set(0)
+    MEMORY_LEAK_CHUNKS.set(0)
+    # Emit structured log so Loki/Grafana panels can also show manual mitigation events
+    try:
+        now = datetime.utcnow()
+        unix_ts = int(now.timestamp())
+        automated = False
+        try:
+            if request is not None:
+                automated = request.headers.get('x-predictive-automated') == '1'
+        except Exception:
+            automated = False
+        mode_str = 'auto' if automated else 'manual'
+        base_extra = {
+            'ts': now.isoformat()+"Z",
+            'unix_ts': unix_ts,
+            'freed_chunks': freed,
+            'reset_latency': True,
+            'source': 'products-api'
+        }
+        # Root-level structured logs (easier Loki parsing). Message carries event name.
+        if automated:
+            logger.info("auto mitigation executed", extra=base_extra)
+        else:
+            logger.info("manual mitigation executed", extra=base_extra)
+        logger.info("mitigation executed", extra=base_extra | {'mode': mode_str})
+    except Exception:
+        logger.exception("failed to log manual mitigation event")
+    return {"reset_latency": True, "freed_chunks": freed}
 
 # Serve static frontend if present
 try:
@@ -167,6 +256,13 @@ logger_middleware(app, logger)
 
 # Timeout middleware
 timeout_middleware(app)
+
+# Latency injection middleware (after timeout to simulate slow handler execution)
+@app.middleware("http")
+async def artificial_latency(request, call_next):
+    if _artificial_latency_ms > 0 and not request.url.path.startswith("/admin"):
+        await asyncio.sleep(_artificial_latency_ms / 1000.0)
+    return await call_next(request)
 
 
 def configure_opentelemetry(app: FastAPI, logger: logging.Logger) -> bool:

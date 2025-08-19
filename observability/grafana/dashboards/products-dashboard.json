@@ -9,10 +9,144 @@
   "graphTooltip": 1,
   "panels": [
     {
+      "id": 90,
+      "type": "row",
+      "title": "🚨 Alertas & Saúde",
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "collapsed": false
+    },
+    {
+      "id": 91,
+      "type": "stat",
+      "title": "🔥 Alertas Firing",
+      "targets": [
+        {"expr": "sum(ALERTS{alertstate=\"firing\"})", "refId": "A"}
+      ],
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "links": [
+        {"title": "Abrir Alertmanager (firing)", "url": "http://localhost:9093/#/alerts?filter=alertstate%3Dfiring", "targetBlank": true}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [
+            {"color": "green", "value": null},
+            {"color": "red", "value": 1}
+          ]},
+          "unit": "short"
+        }
+      },
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center"}
+    },
+    {
+      "id": 92,
+      "type": "stat",
+      "title": "⏳ Alertas Pending",
+      "targets": [
+        {"expr": "sum(ALERTS{alertstate=\"pending\"})", "refId": "A"}
+      ],
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 1},
+      "links": [
+        {"title": "Abrir Alertmanager (pending)", "url": "http://localhost:9093/#/alerts?filter=alertstate%3Dpending", "targetBlank": true}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 2}
+          ]},
+          "unit": "short"
+        }
+      },
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center"}
+    },
+    {
+      "id": 93,
+      "type": "bargauge",
+      "title": "🛑 Firing por Severidade",
+      "description": "Contagem de alertas firing agrupados por severidade.",
+      "targets": [
+        {"expr": "sum by(severity) (ALERTS{alertstate=\"firing\"})", "refId": "A", "legendFormat": "{{severity}}"}
+      ],
+      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "short",
+          "thresholds": {"steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 2}
+          ]}
+          ,"links": [
+            {"title": "Ver severidade no Alertmanager", "url": "http://localhost:9093/#/alerts?filter=severity%3D${__value.text}&filter=alertstate%3Dfiring", "targetBlank": true}
+          ]
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "critical"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]},
+          {"matcher": {"id": "byName", "options": "high"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]},
+          {"matcher": {"id": "byName", "options": "warning"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#FFB300"}}]},
+          {"matcher": {"id": "byName", "options": "medium"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#FFB300"}}]},
+          {"matcher": {"id": "byName", "options": "info"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#5794F2"}}]},
+          {"matcher": {"id": "byName", "options": "low"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#5794F2"}}]}
+        ]
+      },
+      "options": {"orientation": "horizontal", "displayMode": "lcd", "reduceOptions": {"calcs": ["lastNotNull"], "values": false, "fields": ""}}
+    },
+    {
+      "id": 94,
+      "type": "bargauge",
+      "title": "📛 Firing por Nome",
+      "description": "Alertas firing agrupados por nome (valor=quantidade de instâncias).",
+      "targets": [
+        {"expr": "sum by(alertname) (ALERTS{alertstate=\"firing\"})", "refId": "A", "legendFormat": "{{alertname}}"}
+      ],
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "short",
+          "thresholds": {"steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 2}
+          ]},
+          "links": [
+            {"title": "Ver alerta no Alertmanager", "url": "http://localhost:9093/#/alerts?filter=alertname%3D${__value.text}&filter=alertstate%3Dfiring", "targetBlank": true}
+          ]
+        }
+      },
+      "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"], "values": false, "fields": ""}}
+    },
+    {
+      "id": 94,
+      "type": "bargauge",
+      "title": "📛 Firing por Nome",
+      "description": "Alertas firing agrupados por nome (valor=quantidade de instâncias).",
+      "targets": [
+        {"expr": "sum by(alertname) (ALERTS{alertstate=\"firing\"})", "refId": "A", "legendFormat": "{{alertname}}"}
+      ],
+      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 1},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "unit": "short",
+          "thresholds": {"steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 2}
+          ]}
+        }
+      },
+      "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"], "values": false, "fields": ""}}
+    },
+    {
       "id": 1,
       "type": "row",
       "title": "🚀 Business Metrics & KPIs",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
       "datasource": null,
       "collapsed": false
     },
@@ -21,7 +155,7 @@
       "type": "stat",
       "title": "Total Products Served",
       "targets": [{"expr": "sum(increase(http_requests_total{endpoint=\"/v1/products\"}[1h]))", "refId": "A", "legendFormat": "Products"}],
-      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 1},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 6},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -42,7 +176,7 @@
       "type": "piechart",
       "title": "Top API Endpoints",
       "targets": [{"expr": "topk(5, sum by(endpoint) (increase(http_requests_total{endpoint=~\"/v1/.*\"}[1h])))", "refId": "A", "legendFormat": "{{endpoint}}"}],
-      "gridPos": {"h": 8, "w": 8, "x": 4, "y": 1},
+      "gridPos": {"h": 8, "w": 8, "x": 4, "y": 6},
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -71,7 +205,7 @@
       "targets": [
         {"expr": "sum by(endpoint) (rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "{{endpoint}}"}
       ],
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 1},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -103,7 +237,7 @@
       "type": "stat",
       "title": "Avg Response Time",
       "targets": [{"expr": "sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m]))", "refId": "A"}],
-      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 5},
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 10},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -123,7 +257,7 @@
       "id": 2,
       "type": "row",
       "title": "🔴 RED Metrics - Requests, Errors, Duration",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+  "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
       "collapsed": false
     },
     {
@@ -131,7 +265,7 @@
       "type": "stat",
       "title": "🚦 Requests (5m)",
       "targets": [{"expr": "sum(increase(http_requests_total[5m]))", "refId": "A"}],
-      "gridPos": {"h": 3, "w": 4, "x": 0, "y": 10},
+  "gridPos": {"h": 3, "w": 4, "x": 0, "y": 15},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -146,7 +280,7 @@
       "type": "stat",
       "title": "⚠️ Errors (5m)",
       "targets": [{"expr": "sum(increase(http_request_errors_total[5m]))", "refId": "A"}],
-      "gridPos": {"h": 3, "w": 4, "x": 4, "y": 10},
+  "gridPos": {"h": 3, "w": 4, "x": 4, "y": 15},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -167,7 +301,7 @@
       "type": "stat",
       "title": "📊 Error Rate %",
       "targets": [{"expr": "(sum(rate(http_request_errors_total[5m])) / sum(rate(http_requests_total[5m]))) * 100", "refId": "A"}],
-      "gridPos": {"h": 3, "w": 4, "x": 8, "y": 10},
+  "gridPos": {"h": 3, "w": 4, "x": 8, "y": 15},
       "fieldConfig": {
         "defaults": {
           "color": {"mode": "thresholds"},
@@ -191,7 +325,7 @@
         {"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "B", "legendFormat": "P95"},
         {"expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "C", "legendFormat": "P99"}
       ],
-      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 10},
+  "gridPos": {"h": 6, "w": 12, "x": 12, "y": 15},
       "fieldConfig": {
         "defaults": {
           "custom": {"lineWidth": 2, "fillOpacity": 15},
@@ -207,7 +341,7 @@
       "targets": [
         {"expr": "sum by(status_code) (rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "{{status_code}}"}
       ],
-      "gridPos": {"h": 3, "w": 12, "x": 0, "y": 13},
+  "gridPos": {"h": 3, "w": 12, "x": 0, "y": 18},
       "fieldConfig": {
         "defaults": {
           "custom": {"drawStyle": "line", "lineWidth": 1, "fillOpacity": 20},
@@ -220,7 +354,7 @@
       "id": 20,
       "type": "row",
       "title": "🖥️ USE Metrics - Utilization, Saturation, Errors",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 16},
+  "gridPos": {"h": 1, "w": 24, "x": 0, "y": 21},
       "collapsed": false
     },
     {
@@ -228,7 +362,7 @@
       "type": "timeseries",
       "title": "💻 CPU Utilization",
       "targets": [{"expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)", "refId": "A", "legendFormat": "CPU Usage %"}],
-      "gridPos": {"h": 4, "w": 8, "x": 0, "y": 17},
+  "gridPos": {"h": 4, "w": 8, "x": 0, "y": 22},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 30, "lineWidth": 2},
@@ -254,7 +388,7 @@
         {"expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes", "refId": "A", "legendFormat": "Used Memory"},
         {"expr": "node_memory_MemTotal_bytes", "refId": "B", "legendFormat": "Total Memory"}
       ],
-      "gridPos": {"h": 4, "w": 8, "x": 8, "y": 17},
+  "gridPos": {"h": 4, "w": 8, "x": 8, "y": 22},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 20, "lineWidth": 2},
@@ -271,7 +405,7 @@
         {"expr": "irate(node_disk_read_bytes_total[5m])", "refId": "A", "legendFormat": "Read"},
         {"expr": "irate(node_disk_written_bytes_total[5m])", "refId": "B", "legendFormat": "Write"}
       ],
-      "gridPos": {"h": 4, "w": 8, "x": 16, "y": 17},
+  "gridPos": {"h": 4, "w": 8, "x": 16, "y": 22},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 20, "lineWidth": 2},
@@ -285,7 +419,7 @@
       "id": 30,
       "type": "row",
       "title": "🎯 Golden Signals & Alerting",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 21},
+  "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26},
       "collapsed": false
     },
     {
@@ -293,7 +427,7 @@
       "type": "timeseries",
       "title": "🌊 Traffic (req/s)",
       "targets": [{"expr": "sum(rate(http_requests_total[1m]))", "refId": "A", "legendFormat": "Total RPS"}],
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 22},
+  "gridPos": {"h": 4, "w": 6, "x": 0, "y": 27},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 25, "lineWidth": 2},
@@ -307,7 +441,7 @@
       "type": "timeseries",
       "title": "❌ Errors (err/s)",
       "targets": [{"expr": "sum(rate(http_request_errors_total[1m]))", "refId": "A", "legendFormat": "Error Rate"}],
-      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 22},
+  "gridPos": {"h": 4, "w": 6, "x": 6, "y": 27},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 30, "lineWidth": 2},
@@ -327,7 +461,7 @@
       "type": "timeseries",
       "title": "⏱️ Latency P95",
       "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "A", "legendFormat": "P95 Latency"}],
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 22},
+  "gridPos": {"h": 4, "w": 6, "x": 12, "y": 27},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 25, "lineWidth": 2},
@@ -341,7 +475,7 @@
       "type": "timeseries",
       "title": "🔄 In-flight Requests",
       "targets": [{"expr": "sum(http_requests_inprogress)", "refId": "A", "legendFormat": "Active Requests"}],
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 22},
+  "gridPos": {"h": 4, "w": 6, "x": 18, "y": 27},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 30, "lineWidth": 2},
@@ -355,7 +489,7 @@
       "id": 70,
       "type": "row",
       "title": "🔍 Distributed Tracing & Performance",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 26},
+    "gridPos": {"h": 1, "w": 24, "x": 0, "y": 37},
       "collapsed": false
     },
     {
@@ -372,7 +506,7 @@
           "datasource": {"type": "tempo", "uid": "tempo"}
         }
       ],
-      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 27},
+  "gridPos": {"h": 6, "w": 24, "x": 0, "y": 38},
       "options": {
         "showHeader": true,
         "cellHeight": "sm",
@@ -394,7 +528,7 @@
         {"expr": "avg(rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]))", "refId": "A", "legendFormat": "Avg Response Time"},
         {"expr": "rate(http_requests_total[5m])", "refId": "B", "legendFormat": "Request Rate"}
       ],
-      "gridPos": {"h": 6, "w": 24, "x": 0, "y": 33},
+  "gridPos": {"h": 6, "w": 24, "x": 0, "y": 44},
       "fieldConfig": {
         "defaults": {
           "custom": {"fillOpacity": 15, "lineWidth": 2},
@@ -407,7 +541,7 @@
       "id": 40,
       "type": "row",
       "title": "📋 Logs & Debugging",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 39},
+  "gridPos": {"h": 1, "w": 24, "x": 0, "y": 50},
       "collapsed": false
     },
     {
@@ -423,7 +557,7 @@
         "enableLogDetails": true,
         "sortOrder": "Descending"
       },
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40}
+  "gridPos": {"h": 8, "w": 24, "x": 0, "y": 51}
     }
   ],
   "time": {"from": "now-15m", "to": "now"},

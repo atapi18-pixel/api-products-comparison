@@ -24,7 +24,7 @@ Isso iniciará automaticamente:
 - **OpenTelemetry Collector**: Porta 4317
 
 ### 🧪 Testes Automatizados
-- **K6 Load Tests**: Executam automaticamente a cada 10 minutos
+- **K6 Load Tests**: Executam automaticamente a cada 30 minutos
 - **Cenários incluem**: Requisições normais, erros 404, timeouts de 5s
 
 ### 🚨 Sistema de Alertas
