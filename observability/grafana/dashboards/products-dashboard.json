@@ -890,13 +890,10 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "prometheus"
-      },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "continuous-GrYlRd"
           },
           "custom": {
             "axisBorderShow": false,
@@ -907,7 +904,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 15,
+            "fillOpacity": 25,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -955,7 +952,7 @@
         "x": 12,
         "y": 15
       },
-      "id": 6,
+      "id": 95,
       "options": {
         "legend": {
           "calcs": [],
@@ -972,28 +969,12 @@
       "pluginVersion": "12.2.0-17027759091",
       "targets": [
         {
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.50, max(rate(http_request_duration_seconds_bucket[30s])) by (le))",
-          "legendFormat": "P50",
-          "range": true,
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[30s])) by (le))",
+          "legendFormat": "P95 Latency",
           "refId": "A"
-        },
-        {
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, max(rate(http_request_duration_seconds_bucket[30s])) by (le))",
-          "legendFormat": "P95",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.99, max(rate(http_request_duration_seconds_bucket[30s])) by (le))",
-          "legendFormat": "P99",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "⚡ Response Time Percentiles",
+      "title": "⏱️ Latency P95",
       "type": "timeseries"
     },
     {
@@ -1800,7 +1781,13 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Duration"
+          }
+        ]
       },
       "pluginVersion": "12.2.0-17027759091",
       "targets": [
@@ -1940,12 +1927,17 @@
       },
       "id": 41,
       "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
         "enableLogDetails": true,
         "prettifyLogMessage": true,
+        "showCommonLabels": false,
         "showLabels": false,
+        "showTime": false,
         "sortOrder": "Descending",
         "wrapLogMessage": true
       },
+      "pluginVersion": "12.2.0-17027759091",
       "targets": [
         {
           "expr": "{job=\"product-api\"}",
@@ -1976,5 +1968,5 @@
   "timezone": "browser",
   "title": "🛍️ Products API - Observability Dashboard",
   "uid": "6cb236dc-c3e4-4db6-bc05-1aaa378e0e2e",
-  "version": 2
+  "version": 4
 }

@@ -31,6 +31,13 @@ MEM_MAX = int(os.getenv('MEM_MAX_BYTES','300000000'))
 HORIZON = int(os.getenv('PREDICT_HORIZON_SECONDS','180'))
 AUTO_HEAL = os.getenv('AUTO_HEAL','1') in ('1','true','True')
 STEP = os.getenv('QUERY_STEP','30s')
+# --- Novos parâmetros configuráveis para reagir mais rápido pós-mitigação ---
+P95_TREND_RANGE = os.getenv('P95_TREND_RANGE','5m')              # janela longa usada na série para forecast
+P95_FAST_WINDOW = os.getenv('P95_FAST_WINDOW','30s')              # janela curta para detecção rápida de recuperação (reduzido)
+FAST_EXIT_CYCLES = int(os.getenv('FAST_EXIT_CYCLES','2'))         # ciclos consecutivos com fast p95 < EXIT para sair de risco
+POST_MIT_FORCE_FAST_EXIT = os.getenv('POST_MIT_FORCE_FAST_EXIT','1') in ('1','true','True')
+P95_SHORT_TREND_RANGE = os.getenv('P95_SHORT_TREND_RANGE','2m')   # janela curta adicional para forecast responsivo
+POST_MIT_BLEND_SECONDS = int(os.getenv('POST_MIT_BLEND_SECONDS','120'))  # tempo para mesclar fast p95 no forecast
 WHATSAPP_URL = os.getenv('WHATSAPP_WEBHOOK_URL')
 GRAFANA_BASE = os.getenv('GRAFANA_BASE_URL', 'http://localhost:3000')
 DASHBOARD_UID = os.getenv('DASHBOARD_UID', 'predictive-selfheal')
@@ -60,14 +67,19 @@ PREDICT_BUILD_INFO = Gauge('predict_monitor_build_info', 'Info de build do predi
 PREDICT_BUILD_INFO.labels(version=VERSION).set(1)
 
 METRICS_PORT = int(os.getenv('PREDICT_METRICS_PORT','9105'))
-COOLDOWN_SEC = int(os.getenv('PREDICT_COOLDOWN_SECONDS','360'))
+COOLDOWN_SEC = int(os.getenv('PREDICT_COOLDOWN_SECONDS','600'))  # aumentado para evitar mitigacoes seguidas
 PROB_STRONG = float(os.getenv('PREDICT_PROB_STRONG','0.6'))  # prob acima da qual mitiga direto
 PROB_CONFIRM_MIN = float(os.getenv('PREDICT_PROB_CONFIRM_MIN','0.3'))  # faixa de confirmação dupla
 MIN_R2 = float(os.getenv('PREDICT_MIN_R2','0.2'))
 PRE_TIMEOUT_RATIO = float(os.getenv('PREDICT_PRE_TIMEOUT_RATIO','0.9'))  # mitigar se forecast alcançar 90% do timeout
+# Parâmetros de recuperação pós-mitigação
+POST_MIT_GRACE_CYCLES = int(os.getenv('POST_MIT_GRACE_CYCLES','3'))  # ciclos marcados como OK após mitigação
+POST_MIT_RISK_REENTER_RATIO = float(os.getenv('POST_MIT_RISK_REENTER_RATIO','1.2'))  # exige forecast > SLO * ratio para reentrar em risco durante cooldown
 _weak_prev_cycle = False  # estado para confirmação dupla
 _in_risk_state = False    # estado de histerese
 last_mitigation_time = None
+_fast_ok_streak = 0       # contador de ciclos bons na janela rápida
+_post_mit_grace = 0       # ciclos restantes em modo graça pós-mitigação
 
 def log_json(obj: dict):
     """Print JSON to stdout and append to log file (best-effort)."""
@@ -94,6 +106,19 @@ def prom_query_range(expr, minutes=10):
         return []
     # usar primeira série
     return [float(v[1]) for v in data[0]['values'] if v[1] is not None]
+
+def prom_query_instant(expr):
+    """Executa query instantânea e retorna primeiro valor (float) ou None."""
+    try:
+        r = SESSION.get(f"{PROM}/api/v1/query", params={'query': expr}, timeout=10)
+        r.raise_for_status()
+        data = r.json()['data']['result']
+        if not data:
+            return None
+        v = data[0]['value'][1]
+        return float(v) if v is not None else None
+    except Exception:
+        return None
 
 def linear_forecast(series, horizon_s, step_s):
     # Accept even very small series; with <3 points fallback to last value forecast
@@ -156,7 +181,10 @@ def grafana_annotate(text, tags):
 def predictive_cycle():
     step_seconds = int(STEP.strip('s'))
     # Queries
-    p95_expr = "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000"
+    # Janela longa para tendência / forecast (configurável)
+    p95_expr = f"histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[{P95_TREND_RANGE}])) by (le)) * 1000"
+    # Janela curta para detecção rápida de recuperação pós mitigação
+    fast_p95_expr = f"histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[{P95_FAST_WINDOW}])) by (le)) * 1000"
     err_expr = "(sum(increase(http_request_errors_total[5m])))/(sum(increase(http_requests_total[5m]))+1e-9)"
     mem_expr = "process_resident_memory_bytes"
     p95_series = prom_query_range(p95_expr)
@@ -196,25 +224,54 @@ def predictive_cycle():
     global LAST_MIT_UNIX
     global last_mitigation_time
 
-    # Update forecast metric for p95 if present
-    for r in results:
-        if r['metric'] == 'latency_p95_ms':
-            P95_FORECAST.set(r['forecast'])
-            # probability escalonada entre SLO_P95_MS e P95_TIMEOUT_MS para evitar saturação precoce
+    # Compute effective forecast combining long & short windows + fast observed p95 post-mitigation
+    latency_entry = next((r for r in results if r['metric']=='latency_p95_ms'), None)
+    prob = None
+    r2_val = None
+    if latency_entry:
+        long_forecast = latency_entry['forecast']
+        # short trend series
+        short_series = []
+        if P95_SHORT_TREND_RANGE:
             try:
-                if r['forecast'] <= SLO_P95_MS:
-                    prob = 0.0
-                elif r['forecast'] >= P95_TIMEOUT_MS:
-                    prob = 1.0
-                else:
-                    prob = (r['forecast'] - SLO_P95_MS) / max(1.0, (P95_TIMEOUT_MS - SLO_P95_MS))
+                short_expr = f"histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[{P95_SHORT_TREND_RANGE}])) by (le)) * 1000"
+                short_series = prom_query_range(short_expr)
             except Exception:
+                short_series = []
+        short_forecast = None
+        if short_series:
+            try:
+                sf,_,_ = linear_forecast(short_series, HORIZON, step_seconds)
+                short_forecast = sf
+            except Exception:
+                pass
+        effective = long_forecast
+        if short_forecast is not None:
+            effective = min(effective, short_forecast)
+        # blend pós-mitigação usando fast p95 observado
+        fast_obs = None
+        try:
+            fast_obs = prom_query_instant(f"histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[{P95_FAST_WINDOW}])) by (le)) * 1000")
+        except Exception:
+            pass
+        if last_mitigation_time and (time.time() - last_mitigation_time) < POST_MIT_BLEND_SECONDS:
+            if fast_obs is not None:
+                effective = min(effective, fast_obs)
+        latency_entry['effective_forecast'] = effective
+        try:
+            if effective <= SLO_P95_MS:
                 prob = 0.0
-            PREDICT_PROB.set(prob)
-            # r2 metric
-            if 'r2' in r and r['r2'] is not None:
-                PREDICT_R2.set(r['r2'])
-            break
+            elif effective >= P95_TIMEOUT_MS:
+                prob = 1.0
+            else:
+                prob = (effective - SLO_P95_MS) / max(1.0, (P95_TIMEOUT_MS - SLO_P95_MS))
+        except Exception:
+            prob = 0.0
+        P95_FORECAST.set(effective)
+        PREDICT_PROB.set(prob if prob is not None else 0.0)
+        if 'r2' in latency_entry and latency_entry['r2'] is not None:
+            r2_val = latency_entry['r2']
+            PREDICT_R2.set(r2_val)
 
     # Cooldown state
     cooldown_active = 0
@@ -227,23 +284,50 @@ def predictive_cycle():
     latency_entry = next((r for r in results if r['metric']=='latency_p95_ms'), None)
     prob = None
     r2_val = None
-    if latency_entry:
-        # prob já foi computada e colocada em gauge (recalcular rápido)
-        if latency_entry['forecast'] <= SLO_P95_MS:
+    if latency_entry and 'effective_forecast' in latency_entry:
+        eff_fc = latency_entry['effective_forecast']
+    else:
+        eff_fc = latency_entry['forecast'] if latency_entry else None
+    if latency_entry and prob is None and eff_fc is not None:
+        if eff_fc <= SLO_P95_MS:
             prob = 0.0
-        elif latency_entry['forecast'] >= P95_TIMEOUT_MS:
+        elif eff_fc >= P95_TIMEOUT_MS:
             prob = 1.0
         else:
-            prob = (latency_entry['forecast'] - SLO_P95_MS) / max(1.0,(P95_TIMEOUT_MS - SLO_P95_MS))
+            prob = (eff_fc - SLO_P95_MS) / max(1.0,(P95_TIMEOUT_MS - SLO_P95_MS))
+    if latency_entry and r2_val is None:
         r2_val = latency_entry.get('r2')
 
-    # Atualizar estado de histerese
-    if _in_risk_state:
-        if latency_entry and latency_entry['forecast'] < SLO_P95_EXIT_MS:
-            _in_risk_state = False
+    # --- Atualizar estado de histerese com detecção acelerada + pós-mitigação ---
+    global _fast_ok_streak, _post_mit_grace
+    fast_current_p95 = prom_query_instant(fast_p95_expr)
+    fast_exit_hit = False
+    if fast_current_p95 is not None and fast_current_p95 < SLO_P95_EXIT_MS:
+        _fast_ok_streak += 1
+        if _fast_ok_streak >= FAST_EXIT_CYCLES:
+            fast_exit_hit = True
     else:
-        if latency_entry and latency_entry['forecast'] > SLO_P95_MS:
-            _in_risk_state = True
+        _fast_ok_streak = 0
+
+    if _post_mit_grace > 0:
+        # força estado OK independentemente de forecast para evitar re-mitigação precoce
+        _in_risk_state = False
+        _post_mit_grace -= 1
+    else:
+        if _in_risk_state:
+            # Sair se forecast caiu abaixo EXIT ou janela rápida confirma
+            if (latency_entry and eff_fc is not None and eff_fc < SLO_P95_EXIT_MS) or fast_exit_hit:
+                _in_risk_state = False
+                decision_detail = (decision_detail or '') + ' fast_exit'
+                _fast_ok_streak = 0
+        else:
+            if latency_entry:
+                # Reentrada mais difícil durante cooldown pós-mitigação
+                enter_threshold = SLO_P95_MS
+                if last_mitigation_time and (time.time() - last_mitigation_time) < COOLDOWN_SEC:
+                    enter_threshold = SLO_P95_MS * POST_MIT_RISK_REENTER_RATIO
+                if eff_fc is not None and eff_fc > enter_threshold:
+                    _in_risk_state = True
 
     # contabilizar estado do ciclo atual
     # Expor série contínua do estado (gauge) e incrementar o counter apropriado
@@ -255,7 +339,7 @@ def predictive_cycle():
         PREDICT_OK_CYCLES.inc()
 
     can_act = AUTO_HEAL and cooldown_active == 0 and latency_entry and r2_val is not None and r2_val >= MIN_R2
-    early_timeout = latency_entry and latency_entry['forecast'] >= PRE_TIMEOUT_RATIO * P95_TIMEOUT_MS
+    early_timeout = latency_entry and eff_fc is not None and eff_fc >= PRE_TIMEOUT_RATIO * P95_TIMEOUT_MS
     strong = prob is not None and prob >= PROB_STRONG
     weak_band = prob is not None and PROB_CONFIRM_MIN <= prob < PROB_STRONG
 
@@ -263,7 +347,7 @@ def predictive_cycle():
     if can_act and latency_entry:
         if early_timeout:
             trigger = True
-            decision_detail = f"early_timeout {prob:.2f} forecast={latency_entry['forecast']:.0f}"
+            decision_detail = f"early_timeout {prob:.2f} eff={eff_fc:.0f}"
         elif strong and _in_risk_state:
             trigger = True
             decision_detail = f"strong_prob {prob:.2f} r2={r2_val:.2f}"
@@ -287,7 +371,11 @@ def predictive_cycle():
 
     if trigger and latency_entry:
         top = latency_entry
-        reason = (f"Mitigating: forecast_p95={top['forecast']:.0f}ms (prob={prob:.2f}) decision={decision_detail} threshold={SLO_P95_MS} timeout={P95_TIMEOUT_MS}")
+        try:
+            eff_display = f"{eff_fc:.0f}" if eff_fc is not None else "na"
+            reason = (f"Mitigating: p95_raw={top['forecast']:.0f}ms eff={eff_display}ms (prob={prob:.2f}) decision={decision_detail} slo={SLO_P95_MS} timeout={P95_TIMEOUT_MS}")
+        except Exception:
+            reason = "Mitigating (format error)"
         grafana_link = f"{GRAFANA_BASE}/d/{DASHBOARD_UID}?viewPanel=1"
         msg = f"PREDITIVO: {reason} | Dash: {grafana_link}"
         send_whatsapp(msg)
@@ -312,8 +400,11 @@ def predictive_cycle():
         last_mitigation_time = mit_unix
         PREDICT_MITIGATIONS.inc()
         _weak_prev_cycle = False
+        # inicia modo graça
+        _post_mit_grace = POST_MIT_GRACE_CYCLES
+        _in_risk_state = False
     else:
-        # atualizar flag de weak
+        # atualizar flag de weak quando não houve trigger
         _weak_prev_cycle = bool(weak_band and can_act and not trigger and _in_risk_state)
     # compute since_last_mitigation if we just mitigated (0) or leave None
     since_last = None
@@ -332,7 +423,10 @@ def predictive_cycle():
         'r2': r2_val,
         'decision_detail': decision_detail,
         'in_risk_state': _in_risk_state,
-        'cooldown_active': bool(cooldown_active)
+        'cooldown_active': bool(cooldown_active),
+    'fast_p95_ms': fast_current_p95,
+    'fast_ok_streak': _fast_ok_streak,
+    'effective_forecast_ms': eff_fc
     }
     # Ensure the phrase 'mitigation executed' is present in the same line when mitigation happened
     if action_taken == 'mitigation_called':
